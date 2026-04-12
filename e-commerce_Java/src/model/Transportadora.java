@@ -1,16 +1,18 @@
+package model;
+
 import java.util.List;
 
-public class Transportadoras {
+public class Transportadora {
     private String nome;
     private String cnpj;
     private String telefone;
     private int prazoEntrega;
     private double custoFrete;
     private String regiaoAtendida;
-    private List<Produtos> produtos;
+    private List<Produto> produtos;
 
-    public Transportadoras(String nome, String cnpj, String telefone, int prazoEntrega, double custoFrete,
-            String regiaoAtendida, List<Produtos> produtos) {
+    public Transportadora(String nome, String cnpj, String telefone, int prazoEntrega, double custoFrete,
+            String regiaoAtendida, List<Produto> produtos) {
         this.nome = nome;
         this.cnpj = cnpj;
         this.telefone = telefone;
@@ -68,11 +70,11 @@ public class Transportadoras {
         this.regiaoAtendida = regiaoAtendida;
     }
 
-    public List<Produtos> getProdutos() {
+    public List<Produto> getProdutos() {
         return produtos;
     }
 
-    public void setProdutos(List<Produtos> produtos) {
+    public void setProdutos(List<Produto> produtos) {
         this.produtos = produtos;
     }
 

@@ -1,15 +1,17 @@
+package model;
+
 import java.util.List;
 
-public class Fornecedores {
+public class Fornecedor {
     private String nome;
     private String cnpj;
     private String email;
     private String telefone;
     private String endereco;
-    private List<Produtos> produtos;
+    private List<Produto> produtos;
 
-    public Fornecedores(String nome, String cnpj, String email, String telefone, String endereco,
-            List<Produtos> produtos) {
+    public Fornecedor(String nome, String cnpj, String email, String telefone, String endereco,
+            List<Produto> produtos) {
         this.nome = nome;
         this.cnpj = cnpj;
         this.email = email;
@@ -58,11 +60,11 @@ public class Fornecedores {
         this.endereco = endereco;
     }
 
-    public List<Produtos> getProdutos() {
+    public List<Produto> getProdutos() {
         return produtos;
     }
 
-    public void setProdutos(List<Produtos> produtos) {
+    public void setProdutos(List<Produto> produtos) {
         this.produtos = produtos;
     }
 }

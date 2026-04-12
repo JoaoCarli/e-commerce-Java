@@ -1,11 +1,13 @@
-public class Produtos {
-    private Fornecedores fornecedor;
+package model;
+
+public class Produto {
+    private Fornecedor fornecedor;
     private String nome;
     private double preco;
     private String descricao;
     private int estoque;
 
-    public Produtos(Fornecedores fornecedor, String nome, double preco, String descricao, int estoque) {
+    public Produto(Fornecedor fornecedor, String nome, double preco, String descricao, int estoque) {
         this.fornecedor = fornecedor;
         this.nome = nome;
         this.preco = preco;
@@ -13,11 +15,11 @@ public class Produtos {
         this.estoque = estoque;
     }
 
-    public Fornecedores getFornecedor() {
+    public Fornecedor getFornecedor() {
         return fornecedor;
     }
 
-    public void setFornecedor(Fornecedores fornecedor) {
+    public void setFornecedor(Fornecedor fornecedor) {
         this.fornecedor = fornecedor;
     }
 

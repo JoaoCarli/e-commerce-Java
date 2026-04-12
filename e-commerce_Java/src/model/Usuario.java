@@ -1,10 +1,12 @@
-public class Usuarios {
+package model;
+
+public class Usuario {
     private String nome;
     private String email;
     private String senha;
     private Boolean isAdmin = false;
 
-    public Usuarios(String nome, String email, String senha, Boolean isAdmin) {
+    public Usuario(String nome, String email, String senha, Boolean isAdmin) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
