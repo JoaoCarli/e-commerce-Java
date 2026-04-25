@@ -4,9 +4,9 @@ public class Usuario {
     private String nome;
     private String email;
     private String senha;
-    private Boolean isAdmin = false;
+    private boolean isAdmin = false;
 
-    public Usuario(String nome, String email, String senha, Boolean isAdmin) {
+    public Usuario(String nome, String email, String senha, boolean isAdmin) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
@@ -37,11 +37,11 @@ public class Usuario {
         this.senha = senha;
     }
 
-    public Boolean getIsAdmin() {
+    public boolean getIsAdmin() {
         return isAdmin;
     }
 
-    public void setIsAdmin(Boolean isAdmin) {
+    public void setIsAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
     }
 
