@@ -6,9 +6,9 @@ import repository.UserRep;
 public class UserService {
     private UserRep usuarios;
 
-    public boolean login(Usuario email, Usuario senha) {
+    public boolean login(String email, String senha) {
         for (Usuario u : usuarios.listarUser()) {
-            if (u.equals(senha) && u.equals(email)) {
+            if (u.getSenha().equals(senha) && u.getEmail().equals(email)) {
                 return true;
             }
         }
@@ -22,5 +22,44 @@ public class UserService {
 
     public void deleteUser(Usuario usuario) {
         usuarios.listarUser().removeIf(u -> u.equals(usuario));
+    }
+
+    public Usuario pesquisarUserPorEmail(String email) {
+        for (Usuario u : usuarios.listarUser()) {
+            if (u.getEmail().equals(email)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    public boolean alterarUserPorEmail(String emailRef, String novoNome, String novaSenha, String novoEmail,
+            boolean novoAdmin) {
+        Usuario u = pesquisarUserPorEmail(emailRef);
+
+        if (u != null) {
+            if (novoNome != null && !novoNome.trim().isEmpty()) {
+                u.setNome(novoNome);
+            }
+            if (novaSenha != null && !novaSenha.trim().isEmpty()) {
+                u.setSenha(novaSenha);
+            }
+
+            if (novoEmail != null && !novoEmail.trim().isEmpty() && !novoEmail.equals(emailRef)) {
+                Usuario usuarioExistente = pesquisarUserPorEmail(novoEmail);
+
+                if (usuarioExistente == null) {
+                    u.setEmail(novoEmail);
+                } else {
+                    System.out.println("Erro: O e-mail " + novoEmail + " já está sendo usado por outro usuário.");
+                    return false;
+                }
+            }
+
+            u.setIsAdmin(novoAdmin);
+            return true;
+        }
+
+        return false;
     }
 }
