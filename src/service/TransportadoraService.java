@@ -3,7 +3,6 @@ package service;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Fornecedor;
 import model.Transportadora;
 import repository.TransportadoraRep;
 
