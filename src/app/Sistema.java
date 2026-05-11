@@ -33,9 +33,12 @@ public class Sistema {
         userService.register("Admin Master", "admin@gmail.com", "123", true);
         userService.register("Usuario Comum", "user@hotmail.com", "321", false);
 
-        fornecedorService.cadastrarFornecedor("Fornecedor A", "12.345.678/0001-95", "a@f.com", "99", "End A", new ArrayList<>());
-        fornecedorService.cadastrarFornecedor("Fornecedor B", "98.765.432/0001-23", "b@f.com", "99", "End B", new ArrayList<>());
-        fornecedorService.cadastrarFornecedor("Fornecedor C", "45.678.912/0001-06", "c@f.com", "99", "End C", new ArrayList<>());
+        fornecedorService.cadastrarFornecedor("Fornecedor A", "12.345.678/0001-95", "a@f.com", "99", "End A",
+                new ArrayList<>());
+        fornecedorService.cadastrarFornecedor("Fornecedor B", "98.765.432/0001-23", "b@f.com", "99", "End B",
+                new ArrayList<>());
+        fornecedorService.cadastrarFornecedor("Fornecedor C", "45.678.912/0001-06", "c@f.com", "99", "End C",
+                new ArrayList<>());
 
         for (int fId = 1; fId <= 3; fId++) {
             Fornecedor f = fornecedorService.buscarFornecedor(fId);
@@ -44,9 +47,12 @@ public class Sistema {
             }
         }
 
-        transService.cadastrarTransportadora("Trans Rápida", "23.456.789/0001-04", "contato@rapida.com", "88", "Galpão 1");
-        transService.cadastrarTransportadora("Trans Lenta", "34.567.891/0001-42", "contato@lenta.com", "88", "Galpão 2");
-        transService.cadastrarTransportadora("Trans Global", "56.789.123/0001-38", "contato@global.com", "88", "Galpão 3");
+        transService.cadastrarTransportadora("Trans Rápida", "23.456.789/0001-04", "contato@rapida.com", "88",
+                "Galpão 1");
+        transService.cadastrarTransportadora("Trans Lenta", "34.567.891/0001-42", "contato@lenta.com", "88",
+                "Galpão 2");
+        transService.cadastrarTransportadora("Trans Global", "56.789.123/0001-38", "contato@global.com", "88",
+                "Galpão 3");
 
         List<Produto> listaCarga = prodService.listarProdutos().subList(0, 3);
         cargaService.cadastrarCarga(transService.buscarTransportadora(1), listaCarga, "Porto Alegre", "Em trânsito");
@@ -63,7 +69,8 @@ public class Sistema {
             System.out.print("Senha: ");
             String senha = sc.nextLine();
             logado = userService.login(email, senha);
-            if (logado == null) System.out.println("Credenciais incorretas!\n");
+            if (logado == null)
+                System.out.println("Credenciais incorretas!\n");
         }
     }
 
@@ -173,69 +180,69 @@ public class Sistema {
         }
     }
 
-private void cadastrarNovoUsuario() {
-    System.out.print("Nome: ");
-    String nome = sc.nextLine();
+    private void cadastrarNovoUsuario() {
+        System.out.print("Nome: ");
+        String nome = sc.nextLine();
 
-    if (nome.isBlank()) {
-        System.out.println("Erro! Nome não pode ser vazio.");
-        return;
+        if (nome.isBlank()) {
+            System.out.println("Erro! Nome não pode ser vazio.");
+            return;
+        }
+
+        System.out.print("Email: ");
+        String email = sc.nextLine();
+
+        if (email.isBlank()) {
+            System.out.println("Erro! Email não pode ser vazio.");
+            return;
+        }
+
+        if (userService.emailJaExiste(email)) {
+            System.out.println("Erro! Já existe um usuário cadastrado com esse email.");
+            return;
+        }
+
+        System.out.print("Senha: ");
+        String senha = sc.nextLine();
+
+        if (senha.isBlank()) {
+            System.out.println("Erro! Senha não pode ser vazia.");
+            return;
+        }
+
+        System.out.print("É administrador? (s/n): ");
+        String respostaAdmin = sc.nextLine();
+
+        boolean admin = respostaAdmin.equalsIgnoreCase("s");
+
+        userService.register(nome, email, senha, admin);
+
+        System.out.println("Usuário cadastrado com sucesso!");
     }
 
-    System.out.print("Email: ");
-    String email = sc.nextLine();
+    private void deletarUsuario() {
+        System.out.println("\n--- DELETAR USUÁRIO ---");
 
-    if (email.isBlank()) {
-        System.out.println("Erro! Email não pode ser vazio.");
-        return;
+        listarUsuarios();
+
+        System.out.print("\nDigite o ID do usuário que deseja deletar: ");
+        int id = Integer.parseInt(sc.nextLine());
+
+        Usuario usuario = userService.buscarUsuario(id);
+
+        if (usuario == null) {
+            System.out.println("Erro! Usuário não encontrado.");
+            return;
+        }
+
+        boolean removido = userService.removerUsuario(id);
+
+        if (removido) {
+            System.out.println("Usuário deletado com sucesso!");
+        } else {
+            System.out.println("Erro ao deletar usuário.");
+        }
     }
-
-    if (userService.emailJaExiste(email)) {
-        System.out.println("Erro! Já existe um usuário cadastrado com esse email.");
-        return;
-    }
-
-    System.out.print("Senha: ");
-    String senha = sc.nextLine();
-
-    if (senha.isBlank()) {
-        System.out.println("Erro! Senha não pode ser vazia.");
-        return;
-    }
-
-    System.out.print("É administrador? (s/n): ");
-    String respostaAdmin = sc.nextLine();
-
-    boolean admin = respostaAdmin.equalsIgnoreCase("s");
-
-    userService.register(nome, email, senha, admin);
-
-    System.out.println("Usuário cadastrado com sucesso!");
-}
-
-private void deletarUsuario() {
-    System.out.println("\n--- DELETAR USUÁRIO ---");
-
-    listarUsuarios();
-
-    System.out.print("\nDigite o ID do usuário que deseja deletar: ");
-    int id = Integer.parseInt(sc.nextLine());
-
-    Usuario usuario = userService.buscarUsuario(id);
-
-    if (usuario == null) {
-        System.out.println("Erro! Usuário não encontrado.");
-        return;
-    }
-
-    boolean removido = userService.removerUsuario(id);
-
-    if (removido) {
-        System.out.println("Usuário deletado com sucesso!");
-    } else {
-        System.out.println("Erro ao deletar usuário.");
-    }
-}
 
     private void cadastrarFornecedor() {
         System.out.print("Nome: ");
@@ -261,27 +268,35 @@ private void deletarUsuario() {
         int id = Integer.parseInt(sc.nextLine());
         Fornecedor f = fornecedorService.buscarFornecedor(id);
         if (f != null) {
-            System.out.print("Novo Nome ("+f.getNome()+"): "); String nome = sc.nextLine();
-            if(nome.isEmpty()) nome = f.getNome();
-            fornecedorService.atualizarFornecedor(id, nome, f.getCnpj(), f.getEmail(), f.getTelefone(), f.getEndereco(), f.getProdutos());
+            System.out.print("Novo Nome (" + f.getNome() + "): ");
+            String nome = sc.nextLine();
+            if (nome.isEmpty())
+                nome = f.getNome();
+            fornecedorService.atualizarFornecedor(id, nome, f.getCnpj(), f.getEmail(), f.getTelefone(), f.getEndereco(),
+                    f.getProdutos());
             System.out.println("Atualizado!");
-        } else System.out.println("Não encontrado.");
+        } else
+            System.out.println("Não encontrado.");
     }
 
     private void removerFornecedor() {
         listarFornecedores();
         System.out.print("ID para remover: ");
         int id = Integer.parseInt(sc.nextLine());
-        if (fornecedorService.removerFornecedor(id)) System.out.println("Removido.");
-        else System.out.println("Erro ao remover.");
+        if (fornecedorService.removerFornecedor(id))
+            System.out.println("Removido.");
+        else
+            System.out.println("Erro ao remover.");
     }
 
     private void consultarFornecedor() {
         System.out.print("ID: ");
         int id = Integer.parseInt(sc.nextLine());
         Fornecedor f = fornecedorService.buscarFornecedor(id);
-        if (f != null) System.out.println("Nome: " + f.getNome() + " | CNPJ: " + f.getCnpj());
-        else System.out.println("Não encontrado.");
+        if (f != null)
+            System.out.println("Nome: " + f.getNome() + " | CNPJ: " + f.getCnpj());
+        else
+            System.out.println("Não encontrado.");
     }
 
     private void listarUsuarios() {
@@ -289,11 +304,10 @@ private void deletarUsuario() {
 
         for (Usuario u : userService.listarUsuarios()) {
             System.out.println(
-                "ID: " + u.getId() +
-                " | Nome: " + u.getNome() +
-                " | Email: " + u.getEmail() +
-                " | Admin: " + (u.isAdmin() ? "Sim" : "Não")
-            );
+                    "ID: " + u.getId() +
+                            " | Nome: " + u.getNome() +
+                            " | Email: " + u.getEmail() +
+                            " | Admin: " + (u.isAdmin() ? "Sim" : "Não"));
         }
     }
 
@@ -313,7 +327,8 @@ private void deletarUsuario() {
     private void listarCargas() {
         System.out.println("\n--- LISTA DE CARGAS ---");
         for (Carga c : cargaService.listarCargas()) {
-            System.out.println("ID: " + c.getId() + " | Destino: " + c.getDestino() + " | Transp: " + c.getTransportadora().getNome() + " | Status: " + c.getStatus());
+            System.out.println("ID: " + c.getId() + " | Destino: " + c.getDestino() + " | Transp: "
+                    + c.getTransportadora().getNome() + " | Status: " + c.getStatus());
         }
     }
 
@@ -321,9 +336,13 @@ private void deletarUsuario() {
         System.out.print("ID da Transportadora: ");
         int idT = Integer.parseInt(sc.nextLine());
         Transportadora t = transService.buscarTransportadora(idT);
-        if (t == null) { System.out.println("Erro!"); return; }
+        if (t == null) {
+            System.out.println("Erro!");
+            return;
+        }
 
-        System.out.print("Destino: "); String dest = sc.nextLine();
+        System.out.print("Destino: ");
+        String dest = sc.nextLine();
         List<Produto> prods = prodService.listarProdutos().subList(0, 2);
         cargaService.cadastrarCarga(t, prods, dest, "Pendente");
         System.out.println("Carga Gerada!");
@@ -360,13 +379,15 @@ private void deletarUsuario() {
             String nome = sc.nextLine();
             System.out.print("Novo Preço (" + p.getPreco() + "): ");
             String precoStr = sc.nextLine();
-            
-            if (nome.isEmpty()) nome = p.getNome();
+
+            if (nome.isEmpty())
+                nome = p.getNome();
             double preco = precoStr.isEmpty() ? p.getPreco() : Double.parseDouble(precoStr);
 
             prodService.atualizarProduto(id, p.getFornecedor(), nome, preco, p.getDescricao(), p.getEstoque());
             System.out.println("Produto atualizado!");
-        } else System.out.println("Produto não encontrado.");
+        } else
+            System.out.println("Produto não encontrado.");
     }
 
     private void consultarProduto() {
@@ -376,8 +397,10 @@ private void deletarUsuario() {
             int id = Integer.parseInt(busca);
             Produto p = prodService.buscarProduto(id);
             if (p != null) {
-                System.out.println("Prod: " + p.getNome() + " | Fornecedor: " + p.getFornecedor().getNome() + " | Preço: " + p.getPreco());
-            } else System.out.println("Não encontrado.");
+                System.out.println("Prod: " + p.getNome() + " | Fornecedor: " + p.getFornecedor().getNome()
+                        + " | Preço: " + p.getPreco());
+            } else
+                System.out.println("Não encontrado.");
         } catch (NumberFormatException e) {
             System.out.println("Funcionalidade de busca por nome pode ser implementada com Filter.");
         }
@@ -406,14 +429,18 @@ private void deletarUsuario() {
     }
 
     private void cadastrarTransportadora() {
-        System.out.print("Nome: "); String nome = sc.nextLine();
-        System.out.print("CNPJ: "); String cnpj = sc.nextLine();
-        System.out.print("Email: "); String email = sc.nextLine();
-        System.out.print("Telefone: "); String tel = sc.nextLine();
-        System.out.print("Endereço: "); String end = sc.nextLine();
-        
+        System.out.print("Nome: ");
+        String nome = sc.nextLine();
+        System.out.print("CNPJ: ");
+        String cnpj = sc.nextLine();
+        System.out.print("Email: ");
+        String email = sc.nextLine();
+        System.out.print("Telefone: ");
+        String tel = sc.nextLine();
+        System.out.print("Endereço: ");
+        String end = sc.nextLine();
+
         transService.cadastrarTransportadora(nome, cnpj, email, tel, end);
-        System.out.println("Transportadora cadastrada!");
     }
 
     private void listarTransportadoras() {
@@ -426,8 +453,10 @@ private void deletarUsuario() {
     private void removerTransportadora() {
         System.out.print("ID para remover: ");
         int id = Integer.parseInt(sc.nextLine());
-        if (transService.removerTransportadora(id)) System.out.println("Removida.");
-        else System.out.println("ID não encontrado.");
+        if (transService.removerTransportadora(id))
+            System.out.println("Removida.");
+        else
+            System.out.println("ID não encontrado.");
     }
 
     private void alterarTransportadora() {
@@ -437,11 +466,13 @@ private void deletarUsuario() {
         if (t != null) {
             System.out.print("Novo Nome (" + t.getNome() + "): ");
             String nome = sc.nextLine();
-            if (nome.isEmpty()) nome = t.getNome();
-            
+            if (nome.isEmpty())
+                nome = t.getNome();
+
             transService.atualizarTransportadora(id, nome, t.getCnpj(), t.getEmail(), t.getTelefone(), t.getEndereco());
             System.out.println("Dados atualizados!");
-        } else System.out.println("Não encontrada.");
+        } else
+            System.out.println("Não encontrada.");
     }
 
     private void consultarTransportadora() {
@@ -450,7 +481,8 @@ private void deletarUsuario() {
         Transportadora t = transService.buscarTransportadora(id);
         if (t != null) {
             System.out.println("Nome: " + t.getNome() + " | CNPJ: " + t.getCnpj() + " | Endereço: " + t.getEndereco());
-        } else System.out.println("Não encontrada.");
+        } else
+            System.out.println("Não encontrada.");
     }
 
     private void cadastrarProduto() {
@@ -458,7 +490,7 @@ private void deletarUsuario() {
         listarFornecedores();
         System.out.print("ID do Fornecedor: ");
         int idForn = Integer.parseInt(sc.nextLine());
-        
+
         Fornecedor f = fornecedorService.buscarFornecedor(idForn);
         if (f == null) {
             System.out.println("Fornecedor não encontrado!");
