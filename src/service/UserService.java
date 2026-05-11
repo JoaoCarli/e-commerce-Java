@@ -1,7 +1,6 @@
 package service;
 
 import java.util.List;
-
 import model.Usuario;
 import repository.UserRep;
 
@@ -42,5 +41,14 @@ public class UserService {
     public boolean atualizarUsuario(int id, String nome, String email, String senha, boolean admin) {
         Usuario novoUsuario = new Usuario(id, nome, email, senha, admin);
         return usuarios.atualizarUser(id, novoUsuario);
+    }
+
+    public boolean emailJaExiste(String email) {
+        for (Usuario u : usuarios.listarUser()) {
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

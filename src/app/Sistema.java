@@ -3,34 +3,39 @@ package app;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
 import model.*;
 import service.*;
-import repository.*;
 
 public class Sistema {
-    private Scanner sc = new Scanner(System.in);
-    private UserService userService = new UserService();
-    private FornecedorService fornecedorService = new FornecedorService();
-    private ProdService prodService = new ProdService();
-    private TransportadoraService transService = new TransportadoraService();
-    private CargaService cargaService = new CargaService();
+    private final Scanner sc = new Scanner(System.in);
+    private final UserService userService = new UserService();
+    private final FornecedorService fornecedorService = new FornecedorService();
+    private final ProdService prodService = new ProdService();
+    private final TransportadoraService transService = new TransportadoraService();
+    private final CargaService cargaService = new CargaService();
 
     private Usuario logado;
+    private boolean sistemaAtivo = true;
 
     public void start() {
         inicializarDados();
-        login();
-        menu();
+
+        while (sistemaAtivo) {
+            login();
+
+            if (sistemaAtivo) {
+                menu();
+            }
+        }
     }
 
     private void inicializarDados() {
         userService.register("Admin Master", "admin@gmail.com", "123", true);
         userService.register("Usuario Comum", "user@hotmail.com", "321", false);
 
-        fornecedorService.cadastrarFornecedor("Fornecedor A", "11.111", "a@f.com", "99", "End A", new ArrayList<>());
-        fornecedorService.cadastrarFornecedor("Fornecedor B", "22.222", "b@f.com", "99", "End B", new ArrayList<>());
-        fornecedorService.cadastrarFornecedor("Fornecedor C", "33.333", "c@f.com", "99", "End C", new ArrayList<>());
+        fornecedorService.cadastrarFornecedor("Fornecedor A", "12.345.678/0001-95", "a@f.com", "99", "End A", new ArrayList<>());
+        fornecedorService.cadastrarFornecedor("Fornecedor B", "98.765.432/0001-23", "b@f.com", "99", "End B", new ArrayList<>());
+        fornecedorService.cadastrarFornecedor("Fornecedor C", "45.678.912/0001-06", "c@f.com", "99", "End C", new ArrayList<>());
 
         for (int fId = 1; fId <= 3; fId++) {
             Fornecedor f = fornecedorService.buscarFornecedor(fId);
@@ -39,9 +44,9 @@ public class Sistema {
             }
         }
 
-        transService.cadastrarTransportadora("Trans Rápida", "44.444", "contato@rapida.com", "88", "Galpão 1");
-        transService.cadastrarTransportadora("Trans Lenta", "55.555", "contato@lenta.com", "88", "Galpão 2");
-        transService.cadastrarTransportadora("Trans Global", "66.666", "contato@global.com", "88", "Galpão 3");
+        transService.cadastrarTransportadora("Trans Rápida", "23.456.789/0001-04", "contato@rapida.com", "88", "Galpão 1");
+        transService.cadastrarTransportadora("Trans Lenta", "34.567.891/0001-42", "contato@lenta.com", "88", "Galpão 2");
+        transService.cadastrarTransportadora("Trans Global", "56.789.123/0001-38", "contato@global.com", "88", "Galpão 3");
 
         List<Produto> listaCarga = prodService.listarProdutos().subList(0, 3);
         cargaService.cadastrarCarga(transService.buscarTransportadora(1), listaCarga, "Porto Alegre", "Em trânsito");
@@ -62,6 +67,11 @@ public class Sistema {
         }
     }
 
+    private void logout() {
+        logado = null;
+        System.out.println("Logout realizado com sucesso!");
+    }
+
     private void menu() {
         int opcao = -1;
         while (opcao != 0) {
@@ -71,10 +81,12 @@ public class Sistema {
                 System.out.println("2 - Gerenciar Produtos");
                 System.out.println("3 - Gerenciar Transportadoras");
                 System.out.println("4 - Gerenciar Cargas");
+                System.out.println("5 - Gerenciar Usuários");
             } else {
                 System.out.println("1 - Consultar Produtos");
                 System.out.println("2 - Consultar Cargas");
             }
+            System.out.println("9 - Logout");
             System.out.println("0 - Sair");
             System.out.print("Escolha: ");
 
@@ -86,13 +98,30 @@ public class Sistema {
                         case 2 -> menuProdutos();
                         case 3 -> menuTransportadoras();
                         case 4 -> menuCargas();
-                        case 0 -> System.out.println("Encerrando...");
+                        case 5 -> menuUsuario();
+                        case 9 -> {
+                            logout();
+                            return;
+                        }
+                        case 0 -> {
+                            sistemaAtivo = false;
+                            System.out.println("Encerrando...");
+                            return;
+                        }
                     }
                 } else {
                     switch (opcao) {
                         case 1 -> listarProdutos();
                         case 2 -> listarCargas();
-                        case 0 -> System.out.println("Encerrando...");
+                        case 9 -> {
+                            logout();
+                            return;
+                        }
+                        case 0 -> {
+                            sistemaAtivo = false;
+                            System.out.println("Encerrando...");
+                            return;
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -130,14 +159,101 @@ public class Sistema {
         }
     }
 
+    private void menuUsuario() {
+        int op = -1;
+        while (op != 0) {
+            System.out.println("\n--- SUBMENU USUARIOS ---");
+            System.out.println(" 1-Nova Usuário\n 2-Listar Usuários\n 3-Deletar Usuário\n 0-Voltar\n");
+            op = Integer.parseInt(sc.nextLine());
+            switch (op) {
+                case 1 -> cadastrarNovoUsuario();
+                case 2 -> listarUsuarios();
+                case 3 -> deletarUsuario();
+            }
+        }
+    }
+
+private void cadastrarNovoUsuario() {
+    System.out.print("Nome: ");
+    String nome = sc.nextLine();
+
+    if (nome.isBlank()) {
+        System.out.println("Erro! Nome não pode ser vazio.");
+        return;
+    }
+
+    System.out.print("Email: ");
+    String email = sc.nextLine();
+
+    if (email.isBlank()) {
+        System.out.println("Erro! Email não pode ser vazio.");
+        return;
+    }
+
+    if (userService.emailJaExiste(email)) {
+        System.out.println("Erro! Já existe um usuário cadastrado com esse email.");
+        return;
+    }
+
+    System.out.print("Senha: ");
+    String senha = sc.nextLine();
+
+    if (senha.isBlank()) {
+        System.out.println("Erro! Senha não pode ser vazia.");
+        return;
+    }
+
+    System.out.print("É administrador? (s/n): ");
+    String respostaAdmin = sc.nextLine();
+
+    boolean admin = respostaAdmin.equalsIgnoreCase("s");
+
+    userService.register(nome, email, senha, admin);
+
+    System.out.println("Usuário cadastrado com sucesso!");
+}
+
+private void deletarUsuario() {
+    System.out.println("\n--- DELETAR USUÁRIO ---");
+
+    listarUsuarios();
+
+    System.out.print("\nDigite o ID do usuário que deseja deletar: ");
+    int id = Integer.parseInt(sc.nextLine());
+
+    Usuario usuario = userService.buscarUsuario(id);
+
+    if (usuario == null) {
+        System.out.println("Erro! Usuário não encontrado.");
+        return;
+    }
+
+    boolean removido = userService.removerUsuario(id);
+
+    if (removido) {
+        System.out.println("Usuário deletado com sucesso!");
+    } else {
+        System.out.println("Erro ao deletar usuário.");
+    }
+}
+
     private void cadastrarFornecedor() {
-        System.out.print("Nome: "); String nome = sc.nextLine();
-        System.out.print("CNPJ: "); String cnpj = sc.nextLine();
-        System.out.print("Email: "); String email = sc.nextLine();
-        System.out.print("Telefone: "); String tel = sc.nextLine();
-        System.out.print("Endereço: "); String end = sc.nextLine();
+        System.out.print("Nome: ");
+        String nome = sc.nextLine();
+
+        System.out.print("CNPJ: ");
+        String cnpj = sc.nextLine();
+
+        System.out.print("Email: ");
+        String email = sc.nextLine();
+
+        System.out.print("Telefone: ");
+        String tel = sc.nextLine();
+
+        System.out.print("Endereço: ");
+        String end = sc.nextLine();
+
         fornecedorService.cadastrarFornecedor(nome, cnpj, email, tel, end, new ArrayList<>());
-        System.out.println("Sucesso!");
     }
 
     private void alterarFornecedor() {
@@ -153,6 +269,7 @@ public class Sistema {
     }
 
     private void removerFornecedor() {
+        listarFornecedores();
         System.out.print("ID para remover: ");
         int id = Integer.parseInt(sc.nextLine());
         if (fornecedorService.removerFornecedor(id)) System.out.println("Removido.");
@@ -165,6 +282,19 @@ public class Sistema {
         Fornecedor f = fornecedorService.buscarFornecedor(id);
         if (f != null) System.out.println("Nome: " + f.getNome() + " | CNPJ: " + f.getCnpj());
         else System.out.println("Não encontrado.");
+    }
+
+    private void listarUsuarios() {
+        System.out.println("\n--- LISTA DE USUÁRIOS ---");
+
+        for (Usuario u : userService.listarUsuarios()) {
+            System.out.println(
+                "ID: " + u.getId() +
+                " | Nome: " + u.getNome() +
+                " | Email: " + u.getEmail() +
+                " | Admin: " + (u.isAdmin() ? "Sim" : "Não")
+            );
+        }
     }
 
     private void listarFornecedores() {
@@ -224,7 +354,7 @@ public class Sistema {
     private void alterarProduto() {
         System.out.print("ID do Produto: ");
         int id = Integer.parseInt(sc.nextLine());
-        Produto p = prodService.buscarProduto(id); // Garanta que este método existe no seu Service
+        Produto p = prodService.buscarProduto(id);
         if (p != null) {
             System.out.print("Novo Nome (" + p.getNome() + "): ");
             String nome = sc.nextLine();
@@ -242,7 +372,6 @@ public class Sistema {
     private void consultarProduto() {
         System.out.print("ID ou Nome do Produto: ");
         String busca = sc.nextLine();
-        // Exemplo de consulta simples por ID
         try {
             int id = Integer.parseInt(busca);
             Produto p = prodService.buscarProduto(id);
