@@ -5,7 +5,7 @@ import java.util.List;
 import model.Carga;
 
 public class CargaRep {
-    private List<Carga> cargas = new ArrayList<>();
+    private final List<Carga> cargas = new ArrayList<>();
 
     public void salvarCarga(Carga c) {
         cargas.add(c);

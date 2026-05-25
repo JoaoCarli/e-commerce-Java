@@ -2,11 +2,10 @@ package repository;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import model.Transportadora;
 
 public class TransportadoraRep {
-    private List<Transportadora> transportadoras = new ArrayList<>();
+    private final List<Transportadora> transportadoras = new ArrayList<>();
 
     public void salvarTransp(Transportadora transp) {
         transportadoras.add(transp);
@@ -40,11 +39,9 @@ public class TransportadoraRep {
         if (t != null) {
             t.setNome(nova.getNome());
             t.setCnpj(nova.getCnpj());
+            t.setEmail(nova.getEmail());
             t.setTelefone(nova.getTelefone());
-            t.setPrazoEntrega(nova.getPrazoEntrega());
-            t.setCustoFrete(nova.getCustoFrete());
             t.setEndereco(nova.getEndereco());
-            t.setProdutos(nova.getProdutos());
             return true;
         }
 

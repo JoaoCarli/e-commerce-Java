@@ -6,15 +6,14 @@ import model.Produto;
 import repository.FornecedorRep;
 
 public class FornecedorService {
-    private FornecedorRep fornecedores;
+    private final FornecedorRep fornecedores;
     private int contadorId = 1;
 
     public FornecedorService() {
         this.fornecedores = new FornecedorRep();
     }
 
-public void cadastrarFornecedor(String nome, String cnpj, String email, String telefone, String endereco,
-            List<Produto> produtos) {
+public void cadastrarFornecedor(String nome, String cnpj, String email, String telefone, String endereco, List<Produto> produtos) {
 
         if (nome.isBlank()) {
             System.out.println("Erro! Nome não pode ser vazio.");
@@ -74,8 +73,7 @@ public void cadastrarFornecedor(String nome, String cnpj, String email, String t
         return fornecedores.removerFornecedor(id);
     }
 
-    public boolean atualizarFornecedor(int id, String novoNome, String cnpj, String email,
-            String telefone, String endereco, List<Produto> produtos) {
+    public boolean atualizarFornecedor(int id, String novoNome, String cnpj, String email, String telefone, String endereco, List<Produto> produtos) {
 
         Fornecedor novoFornecedor = new Fornecedor(id, novoNome, cnpj, email, telefone, endereco, produtos);
         return fornecedores.atualizarFornecedor(id, novoFornecedor);

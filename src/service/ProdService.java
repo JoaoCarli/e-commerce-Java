@@ -1,22 +1,45 @@
 package service;
 
 import java.util.List;
-
 import model.Fornecedor;
 import model.Produto;
 import repository.ProdRep;
 
 public class ProdService {
-    private ProdRep produtos;
+    private final ProdRep produtos;
     private int contadorId = 1;
 
     public ProdService() {
         this.produtos = new ProdRep();
     }
 
-    public void cadastrarProduto(Fornecedor fornecedor, String nome, double preco, String descricao, int estoque) {
+    public Produto cadastrarProduto(Fornecedor fornecedor, String nome, double preco, String descricao, int estoque) {
+        if (fornecedor == null) {
+            System.out.println("Erro! Fornecedor não informado.");
+            return null;
+        }
+
+        if (nome == null || nome.isBlank()) {
+            System.out.println("Erro! Nome do produto não pode ser vazio.");
+            return null;
+        }
+
+        if (preco < 0) {
+            System.out.println("Erro! Preço não pode ser negativo.");
+            return null;
+        }
+
+        if (estoque < 0) {
+            System.out.println("Erro! Estoque não pode ser negativo.");
+            return null;
+        }
+
         Produto newProduto = new Produto(contadorId++, fornecedor, nome, preco, descricao, estoque);
         produtos.salvarProd(newProduto);
+
+        fornecedor.adicionarProduto(newProduto);
+
+        return newProduto;
     }
 
     public List<Produto> listarProdutos() {
@@ -28,13 +51,40 @@ public class ProdService {
     }
 
     public boolean removerProduto(int id) {
-        return produtos.removerProd(id);
+        Produto produto = produtos.buscarPorId(id);
+
+        if (produto == null) {
+            return false;
+        }
+
+        boolean removido = produtos.removerProd(id);
+
+        if (removido && produto.getFornecedor() != null) {
+            produto.getFornecedor().removerProduto(produto);
+        }
+
+        return removido;
     }
 
-    public boolean atualizarProduto(int id, Fornecedor fornecedor, String nome,
-            double preco, String descricao, int estoque) {
+    public boolean atualizarProduto(int id, Fornecedor fornecedor, String nome, double preco, String descricao, int estoque) {
 
+        Produto produtoAtual = produtos.buscarPorId(id);
+
+        if (produtoAtual == null || fornecedor == null) {
+            return false;
+        }
+
+        Fornecedor fornecedorAntigo = produtoAtual.getFornecedor();
         Produto novoProduto = new Produto(id, fornecedor, nome, preco, descricao, estoque);
-        return produtos.atualizarProd(id, novoProduto);
+        boolean atualizado = produtos.atualizarProd(id, novoProduto);
+
+        if (atualizado && fornecedorAntigo != fornecedor) {
+            if (fornecedorAntigo != null) {
+                fornecedorAntigo.removerProduto(produtoAtual);
+            }
+            fornecedor.adicionarProduto(produtoAtual);
+        }
+
+        return atualizado;
     }
 }

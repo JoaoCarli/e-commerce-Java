@@ -1,13 +1,11 @@
 package service;
 
-import java.util.ArrayList;
 import java.util.List;
-
 import model.Transportadora;
 import repository.TransportadoraRep;
 
 public class TransportadoraService {
-    private TransportadoraRep transportadoras;
+    private final TransportadoraRep transportadoras;
     private int contadorId = 1;
 
     public TransportadoraService() {
@@ -26,7 +24,7 @@ public class TransportadoraService {
         }
 
         if (cnpjJaExiste(cnpj)) {
-            System.out.println("Erro! Já existe um fornecedor com esse CNPJ.");
+            System.out.println("Erro! Já existe uma transportadora com esse CNPJ.");
             return;
         }
 
@@ -55,8 +53,7 @@ public class TransportadoraService {
             return;
         }
 
-        Transportadora newTransp = new Transportadora(
-                contadorId++, nome, cnpj, email, telefone, 0, 0.0, endereco, new ArrayList<>());
+        Transportadora newTransp = new Transportadora(contadorId++, nome, cnpj, email, telefone, endereco);
         transportadoras.salvarTransp(newTransp);
 
         System.out.println("Transportadora cadastrada com sucesso!");
@@ -74,9 +71,8 @@ public class TransportadoraService {
         return transportadoras.removerTransp(id);
     }
 
-    public boolean atualizarTransportadora(int id, String nome, String cnpj, String email, String telefone,
-            String endereco) {
-        Transportadora nova = new Transportadora(id, nome, cnpj, email, telefone, 0, 0.0, endereco, new ArrayList<>());
+    public boolean atualizarTransportadora(int id, String nome, String cnpj, String email, String telefone, String endereco) {
+        Transportadora nova = new Transportadora(id, nome, cnpj, email, telefone, endereco);
         return transportadoras.atualizarTransp(id, nova);
     }
 
@@ -101,8 +97,8 @@ public class TransportadoraService {
     public boolean cnpjJaExiste(String cnpj) {
         String cnpjLimpo = limparCnpj(cnpj);
 
-        for (Transportadora f : transportadoras.listarTransp()) {
-            if (limparCnpj(f.getCnpj()).equals(cnpjLimpo)) {
+        for (Transportadora t : transportadoras.listarTransp()) {
+            if (limparCnpj(t.getCnpj()).equals(cnpjLimpo)) {
                 return true;
             }
         }

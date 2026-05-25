@@ -33,32 +33,45 @@ public class Sistema {
         userService.register("Admin Master", "admin@gmail.com", "123", true);
         userService.register("Usuario Comum", "user@hotmail.com", "321", false);
 
-        fornecedorService.cadastrarFornecedor("Fornecedor A", "12.345.678/0001-95", "a@f.com", "99", "End A",
+        fornecedorService.cadastrarFornecedor("Fornecedor A", "12.345.678/0001-95", "fornecedorA@gmail.com", "54 996259874", "End A",
                 new ArrayList<>());
-        fornecedorService.cadastrarFornecedor("Fornecedor B", "98.765.432/0001-23", "b@f.com", "99", "End B",
+        fornecedorService.cadastrarFornecedor("Fornecedor B", "98.765.432/0001-23", "fornecedorB@gmail.com", "11 996352541", "End B",
                 new ArrayList<>());
-        fornecedorService.cadastrarFornecedor("Fornecedor C", "45.678.912/0001-06", "c@f.com", "99", "End C",
+        fornecedorService.cadastrarFornecedor("Fornecedor C", "45.678.912/0001-06", "fornecedorC@gmail.com", "55 996986532", "End C",
                 new ArrayList<>());
 
         for (int fId = 1; fId <= 3; fId++) {
             Fornecedor f = fornecedorService.buscarFornecedor(fId);
-            for (int p = 1; p <= 7; p++) {
-                prodService.cadastrarProduto(f, "Prod " + p + " do Forn " + fId, 10.0 * p, "Desc", 100);
+            for (int p = 1; p <= 3; p++) {
+                prodService.cadastrarProduto(f, "Produto " + p + " do Fornecedor " + fId, 10.0 * p, "Desc", 100);
             }
         }
 
-        transService.cadastrarTransportadora("Trans Rápida", "23.456.789/0001-04", "contato@rapida.com", "88",
+        transService.cadastrarTransportadora("Transp Rápida", "23.456.789/0001-04", "contato@rapida.com", "54 996254875",
                 "Galpão 1");
-        transService.cadastrarTransportadora("Trans Lenta", "34.567.891/0001-42", "contato@lenta.com", "88",
+        transService.cadastrarTransportadora("Transp Lenta", "34.567.891/0001-42", "contato@lenta.com", "11 996359864",
                 "Galpão 2");
-        transService.cadastrarTransportadora("Trans Global", "56.789.123/0001-38", "contato@global.com", "88",
+        transService.cadastrarTransportadora("Transp Global", "56.789.123/0001-38", "contato@global.com", "88 996854796",
                 "Galpão 3");
 
-        List<Produto> listaCarga = prodService.listarProdutos().subList(0, 3);
-        cargaService.cadastrarCarga(transService.buscarTransportadora(1), listaCarga, "Porto Alegre", "Em trânsito");
-        cargaService.cadastrarCarga(transService.buscarTransportadora(2), listaCarga, "Caxias do Sul", "Pendente");
-        cargaService.cadastrarCarga(transService.buscarTransportadora(1), listaCarga, "Bento Gonçalves", "Entregue");
-        cargaService.cadastrarCarga(transService.buscarTransportadora(3), listaCarga, "Vacaria", "Em trânsito");
+        cargaService.cadastrarCarga(transService.buscarTransportadora(1), buscarProdutosPorIds(1, 2, 3), "Porto Alegre", "Em trânsito");
+        cargaService.cadastrarCarga(transService.buscarTransportadora(2), buscarProdutosPorIds(4, 5), "Caxias do Sul", "Pendente");
+        cargaService.cadastrarCarga(transService.buscarTransportadora(1), buscarProdutosPorIds(6, 7, 8), "Bento Gonçalves", "Entregue");
+        cargaService.cadastrarCarga(transService.buscarTransportadora(3), buscarProdutosPorIds(9), "Vacaria", "Em trânsito");
+    }
+
+    private List<Produto> buscarProdutosPorIds(int... ids) {
+        List<Produto> produtos = new ArrayList<>();
+
+        for (int id : ids) {
+            Produto produto = prodService.buscarProduto(id);
+
+            if (produto != null) {
+                produtos.add(produto);
+            }
+        }
+
+        return produtos;
     }
 
     private void login() {
@@ -313,14 +326,16 @@ public class Sistema {
 
     private void listarFornecedores() {
         for (Fornecedor f : fornecedorService.listarFornecedores()) {
-            System.out.println(f.getId() + " - " + f.getNome());
+            System.out.println(f.getId() + " - " + f.getNome() + " | Produtos: " + f.getProdutos().size());
         }
     }
 
     private void listarProdutos() {
         System.out.println("\n--- LISTA DE PRODUTOS ---");
         for (Produto p : prodService.listarProdutos()) {
-            System.out.println(p.getId() + " - " + p.getNome() + " (Preço: " + p.getPreco() + ")");
+            System.out.println(p.getId() + " - " + p.getNome()
+                    + " | Fornecedor: " + p.getFornecedor().getNome()
+                    + " | Preço: " + p.getPreco());
         }
     }
 
@@ -329,23 +344,53 @@ public class Sistema {
         for (Carga c : cargaService.listarCargas()) {
             System.out.println("ID: " + c.getId() + " | Destino: " + c.getDestino() + " | Transp: "
                     + c.getTransportadora().getNome() + " | Status: " + c.getStatus());
+
+            System.out.println("Produtos da carga:");
+            for (Produto p : c.getProdutos()) {
+                System.out.println("  - " + p.getId() + " | " + p.getNome()
+                        + " | Fornecedor: " + p.getFornecedor().getNome());
+            }
         }
     }
 
     private void cadastrarNovaCargaManual() {
+        listarTransportadoras();
         System.out.print("ID da Transportadora: ");
         int idT = Integer.parseInt(sc.nextLine());
         Transportadora t = transService.buscarTransportadora(idT);
         if (t == null) {
-            System.out.println("Erro!");
+            System.out.println("Transportadora não encontrada!");
             return;
         }
 
         System.out.print("Destino: ");
         String dest = sc.nextLine();
-        List<Produto> prods = prodService.listarProdutos().subList(0, 2);
-        cargaService.cadastrarCarga(t, prods, dest, "Pendente");
-        System.out.println("Carga Gerada!");
+
+        listarProdutos();
+        System.out.print("IDs dos produtos da carga separados por vírgula. Ex: 1,3,5: ");
+        String entradaProdutos = sc.nextLine();
+
+        List<Produto> prods = new ArrayList<>();
+        for (String idTexto : entradaProdutos.split(",")) {
+            try {
+                int idProduto = Integer.parseInt(idTexto.trim());
+                Produto produto = prodService.buscarProduto(idProduto);
+
+                if (produto != null) {
+                    prods.add(produto);
+                } else {
+                    System.out.println("Produto ID " + idProduto + " não encontrado e será ignorado.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("ID inválido ignorado: " + idTexto);
+            }
+        }
+
+        Carga carga = cargaService.cadastrarCarga(t, prods, dest, "Pendente");
+
+        if (carga != null) {
+            System.out.println("Carga gerada com produtos vinculados!");
+        }
     }
 
     private void menuProdutos() {
@@ -506,8 +551,10 @@ public class Sistema {
         System.out.print("Quantidade em Estoque: ");
         int estoque = Integer.parseInt(sc.nextLine());
 
-        prodService.cadastrarProduto(f, nome, preco, desc, estoque);
-        System.out.println("Produto cadastrado com sucesso!");
+        Produto produto = prodService.cadastrarProduto(f, nome, preco, desc, estoque);
+        if (produto != null) {
+            System.out.println("Produto cadastrado com sucesso!");
+        }
     }
 
     private void removerProduto() {

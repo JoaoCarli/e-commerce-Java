@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Fornecedor {
@@ -18,7 +19,7 @@ public class Fornecedor {
         this.email = email;
         this.telefone = telefone;
         this.endereco = endereco;
-        this.produtos = produtos;
+        this.produtos = produtos == null ? new ArrayList<>() : new ArrayList<>(produtos);
     }
 
     public int getId() {
@@ -74,6 +75,16 @@ public class Fornecedor {
     }
 
     public void setProdutos(List<Produto> produtos) {
-        this.produtos = produtos;
+        this.produtos = produtos == null ? new ArrayList<>() : new ArrayList<>(produtos);
+    }
+
+    public void adicionarProduto(Produto produto) {
+        if (produto != null && !produtos.contains(produto)) {
+            produtos.add(produto);
+        }
+    }
+
+    public void removerProduto(Produto produto) {
+        produtos.remove(produto);
     }
 }

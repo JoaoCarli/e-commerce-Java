@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Carga {
@@ -12,7 +13,7 @@ public class Carga {
     public Carga(int id, Transportadora transportadora, List<Produto> produtos, String destino, String status) {
         this.id = id;
         this.transportadora = transportadora;
-        this.produtos = produtos;
+        this.produtos = produtos == null ? new ArrayList<>() : new ArrayList<>(produtos);
         this.destino = destino;
         this.status = status;
     }
@@ -38,7 +39,17 @@ public class Carga {
     }
 
     public void setProdutos(List<Produto> produtos) {
-        this.produtos = produtos;
+        this.produtos = produtos == null ? new ArrayList<>() : new ArrayList<>(produtos);
+    }
+
+    public void adicionarProduto(Produto produto) {
+        if (produto != null && !produtos.contains(produto)) {
+            produtos.add(produto);
+        }
+    }
+
+    public void removerProduto(Produto produto) {
+        produtos.remove(produto);
     }
 
     public String getDestino() {

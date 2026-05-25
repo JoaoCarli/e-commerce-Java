@@ -5,7 +5,7 @@ import model.Usuario;
 import repository.UserRep;
 
 public class UserService {
-    private UserRep usuarios;
+    private final UserRep usuarios;
     private int contadorId = 1;
 
     public UserService() {
