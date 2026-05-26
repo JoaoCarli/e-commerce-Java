@@ -1,5 +1,6 @@
 package service;
 
+import java.util.ArrayList;
 import java.util.List;
 import model.Fornecedor;
 import model.Produto;
@@ -48,6 +49,20 @@ public class ProdService {
 
     public Produto buscarProduto(int id) {
         return produtos.buscarPorId(id);
+    }
+
+    public List<Produto> buscarProdutosPorIds(int... ids) {
+        List<Produto> listaProdutos = new ArrayList<>();
+
+        for (int id : ids) {
+            Produto produto = buscarProduto(id);
+
+            if (produto != null) {
+                listaProdutos.add(produto);
+            }
+        }
+
+        return listaProdutos;
     }
 
     public boolean removerProduto(int id) {

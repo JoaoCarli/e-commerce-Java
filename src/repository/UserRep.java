@@ -24,13 +24,9 @@ public class UserRep {
         return null;
     }
 
-    public boolean removerUser(int id) {
+    public void removerUser(int id) {
         Usuario u = buscarPorId(id);
-        if (u != null) {
-            usuarios.remove(u);
-            return true;
-        }
-        return false;
+        usuarios.remove(u);
     }
 
     public boolean atualizarUser(int id, Usuario novoUsuario) {

@@ -1,7 +1,7 @@
 package app;
 
+import controller.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import model.*;
 import service.*;
@@ -13,6 +13,12 @@ public class Sistema {
     private final ProdService prodService = new ProdService();
     private final TransportadoraService transService = new TransportadoraService();
     private final CargaService cargaService = new CargaService();
+
+    private final UserController userController = new UserController(sc, userService);
+    private final FornecedorController fornecedorController = new FornecedorController(sc, fornecedorService);
+    private final ProdutoController produtoController = new ProdutoController(sc, prodService);
+    private final TransportadoraController transController = new TransportadoraController(sc, transService);
+    private final CargaController cargaController = new CargaController(sc, cargaService);
 
     private Usuario logado;
     private boolean sistemaAtivo = true;
@@ -30,8 +36,8 @@ public class Sistema {
     }
 
     private void inicializarDados() {
-        userService.register("Admin Master", "admin@gmail.com", "123", true);
-        userService.register("Usuario Comum", "user@hotmail.com", "321", false);
+        userService.register("Admin Master", "admin@gmail.com", "Mortadela1", true);
+        userService.register("Usuario Comum", "user@hotmail.com", "Gargamel", false);
 
         fornecedorService.cadastrarFornecedor("Fornecedor A", "12.345.678/0001-95", "fornecedorA@gmail.com", "54 996259874", "End A",
                 new ArrayList<>());
@@ -54,24 +60,10 @@ public class Sistema {
         transService.cadastrarTransportadora("Transp Global", "56.789.123/0001-38", "contato@global.com", "88 996854796",
                 "Galpão 3");
 
-        cargaService.cadastrarCarga(transService.buscarTransportadora(1), buscarProdutosPorIds(1, 2, 3), "Porto Alegre", "Em trânsito");
-        cargaService.cadastrarCarga(transService.buscarTransportadora(2), buscarProdutosPorIds(4, 5), "Caxias do Sul", "Pendente");
-        cargaService.cadastrarCarga(transService.buscarTransportadora(1), buscarProdutosPorIds(6, 7, 8), "Bento Gonçalves", "Entregue");
-        cargaService.cadastrarCarga(transService.buscarTransportadora(3), buscarProdutosPorIds(9), "Vacaria", "Em trânsito");
-    }
-
-    private List<Produto> buscarProdutosPorIds(int... ids) {
-        List<Produto> produtos = new ArrayList<>();
-
-        for (int id : ids) {
-            Produto produto = prodService.buscarProduto(id);
-
-            if (produto != null) {
-                produtos.add(produto);
-            }
-        }
-
-        return produtos;
+        cargaService.cadastrarCarga(transService.buscarTransportadora(1), prodService.buscarProdutosPorIds(1, 2, 3), "Porto Alegre", "Em trânsito");
+        cargaService.cadastrarCarga(transService.buscarTransportadora(2), prodService.buscarProdutosPorIds(4, 5), "Caxias do Sul", "Pendente");
+        cargaService.cadastrarCarga(transService.buscarTransportadora(1), prodService.buscarProdutosPorIds(6, 7, 8), "Bento Gonçalves", "Entregue");
+        cargaService.cadastrarCarga(transService.buscarTransportadora(3), prodService.buscarProdutosPorIds(9), "Vacaria", "Em trânsito");
     }
 
     private void login() {
@@ -114,11 +106,11 @@ public class Sistema {
                 opcao = Integer.parseInt(sc.nextLine());
                 if (logado.isAdmin()) {
                     switch (opcao) {
-                        case 1 -> menuFornecedores();
-                        case 2 -> menuProdutos();
-                        case 3 -> menuTransportadoras();
-                        case 4 -> menuCargas();
-                        case 5 -> menuUsuario();
+                        case 1 -> fornecedorController.menuFornecedores();
+                        case 2 -> produtoController.menuProdutos();
+                        case 3 -> transController.menuTransportadoras();
+                        case 4 -> cargaController.menuCargas();
+                        case 5 -> userController.menuUsuario();
                         case 9 -> {
                             logout();
                             return;
@@ -131,8 +123,8 @@ public class Sistema {
                     }
                 } else {
                     switch (opcao) {
-                        case 1 -> listarProdutos();
-                        case 2 -> listarCargas();
+                        case 1 -> produtoController.listarProdutos();
+                        case 2 -> cargaController.listarCargas();
                         case 9 -> {
                             logout();
                             return;
@@ -150,420 +142,5 @@ public class Sistema {
         }
     }
 
-    private void menuFornecedores() {
-        int op = -1;
-        while (op != 0) {
-            System.out.println("\n--- SUBMENU FORNECEDORES ---");
-            System.out.println("1-Incluir 2-Alterar 3-Excluir 4-Consultar 5-Listar 0-Voltar");
-            op = Integer.parseInt(sc.nextLine());
-            switch (op) {
-                case 1 -> cadastrarFornecedor();
-                case 2 -> alterarFornecedor();
-                case 3 -> removerFornecedor();
-                case 4 -> consultarFornecedor();
-                case 5 -> listarFornecedores();
-            }
-        }
-    }
-
-    private void menuCargas() {
-        int op = -1;
-        while (op != 0) {
-            System.out.println("\n--- SUBMENU CARGAS ---");
-            System.out.println("1-Nova Carga 2-Listar Cargas 0-Voltar");
-            op = Integer.parseInt(sc.nextLine());
-            switch (op) {
-                case 1 -> cadastrarNovaCargaManual();
-                case 2 -> listarCargas();
-            }
-        }
-    }
-
-    private void menuUsuario() {
-        int op = -1;
-        while (op != 0) {
-            System.out.println("\n--- SUBMENU USUARIOS ---");
-            System.out.println(" 1-Nova Usuário\n 2-Listar Usuários\n 3-Deletar Usuário\n 0-Voltar\n");
-            op = Integer.parseInt(sc.nextLine());
-            switch (op) {
-                case 1 -> cadastrarNovoUsuario();
-                case 2 -> listarUsuarios();
-                case 3 -> deletarUsuario();
-            }
-        }
-    }
-
-    private void cadastrarNovoUsuario() {
-        System.out.print("Nome: ");
-        String nome = sc.nextLine();
-
-        if (nome.isBlank()) {
-            System.out.println("Erro! Nome não pode ser vazio.");
-            return;
-        }
-
-        System.out.print("Email: ");
-        String email = sc.nextLine();
-
-        if (email.isBlank()) {
-            System.out.println("Erro! Email não pode ser vazio.");
-            return;
-        }
-
-        if (userService.emailJaExiste(email)) {
-            System.out.println("Erro! Já existe um usuário cadastrado com esse email.");
-            return;
-        }
-
-        System.out.print("Senha: ");
-        String senha = sc.nextLine();
-
-        if (senha.isBlank()) {
-            System.out.println("Erro! Senha não pode ser vazia.");
-            return;
-        }
-
-        System.out.print("É administrador? (s/n): ");
-        String respostaAdmin = sc.nextLine();
-
-        boolean admin = respostaAdmin.equalsIgnoreCase("s");
-
-        userService.register(nome, email, senha, admin);
-
-        System.out.println("Usuário cadastrado com sucesso!");
-    }
-
-    private void deletarUsuario() {
-        System.out.println("\n--- DELETAR USUÁRIO ---");
-
-        listarUsuarios();
-
-        System.out.print("\nDigite o ID do usuário que deseja deletar: ");
-        int id = Integer.parseInt(sc.nextLine());
-
-        Usuario usuario = userService.buscarUsuario(id);
-
-        if (usuario == null) {
-            System.out.println("Erro! Usuário não encontrado.");
-            return;
-        }
-
-        boolean removido = userService.removerUsuario(id);
-
-        if (removido) {
-            System.out.println("Usuário deletado com sucesso!");
-        } else {
-            System.out.println("Erro ao deletar usuário.");
-        }
-    }
-
-    private void cadastrarFornecedor() {
-        System.out.print("Nome: ");
-        String nome = sc.nextLine();
-
-        System.out.print("CNPJ: ");
-        String cnpj = sc.nextLine();
-
-        System.out.print("Email: ");
-        String email = sc.nextLine();
-
-        System.out.print("Telefone: ");
-        String tel = sc.nextLine();
-
-        System.out.print("Endereço: ");
-        String end = sc.nextLine();
-
-        fornecedorService.cadastrarFornecedor(nome, cnpj, email, tel, end, new ArrayList<>());
-    }
-
-    private void alterarFornecedor() {
-        System.out.print("ID do Fornecedor: ");
-        int id = Integer.parseInt(sc.nextLine());
-        Fornecedor f = fornecedorService.buscarFornecedor(id);
-        if (f != null) {
-            System.out.print("Novo Nome (" + f.getNome() + "): ");
-            String nome = sc.nextLine();
-            if (nome.isEmpty())
-                nome = f.getNome();
-            fornecedorService.atualizarFornecedor(id, nome, f.getCnpj(), f.getEmail(), f.getTelefone(), f.getEndereco(),
-                    f.getProdutos());
-            System.out.println("Atualizado!");
-        } else
-            System.out.println("Não encontrado.");
-    }
-
-    private void removerFornecedor() {
-        listarFornecedores();
-        System.out.print("ID para remover: ");
-        int id = Integer.parseInt(sc.nextLine());
-        if (fornecedorService.removerFornecedor(id))
-            System.out.println("Removido.");
-        else
-            System.out.println("Erro ao remover.");
-    }
-
-    private void consultarFornecedor() {
-        System.out.print("ID: ");
-        int id = Integer.parseInt(sc.nextLine());
-        Fornecedor f = fornecedorService.buscarFornecedor(id);
-        if (f != null)
-            System.out.println("Nome: " + f.getNome() + " | CNPJ: " + f.getCnpj());
-        else
-            System.out.println("Não encontrado.");
-    }
-
-    private void listarUsuarios() {
-        System.out.println("\n--- LISTA DE USUÁRIOS ---");
-
-        for (Usuario u : userService.listarUsuarios()) {
-            System.out.println(
-                    "ID: " + u.getId() +
-                            " | Nome: " + u.getNome() +
-                            " | Email: " + u.getEmail() +
-                            " | Admin: " + (u.isAdmin() ? "Sim" : "Não"));
-        }
-    }
-
-    private void listarFornecedores() {
-        for (Fornecedor f : fornecedorService.listarFornecedores()) {
-            System.out.println(f.getId() + " - " + f.getNome() + " | Produtos: " + f.getProdutos().size());
-        }
-    }
-
-    private void listarProdutos() {
-        System.out.println("\n--- LISTA DE PRODUTOS ---");
-        for (Produto p : prodService.listarProdutos()) {
-            System.out.println(p.getId() + " - " + p.getNome()
-                    + " | Fornecedor: " + p.getFornecedor().getNome()
-                    + " | Preço: " + p.getPreco());
-        }
-    }
-
-    private void listarCargas() {
-        System.out.println("\n--- LISTA DE CARGAS ---");
-        for (Carga c : cargaService.listarCargas()) {
-            System.out.println("ID: " + c.getId() + " | Destino: " + c.getDestino() + " | Transp: "
-                    + c.getTransportadora().getNome() + " | Status: " + c.getStatus());
-
-            System.out.println("Produtos da carga:");
-            for (Produto p : c.getProdutos()) {
-                System.out.println("  - " + p.getId() + " | " + p.getNome()
-                        + " | Fornecedor: " + p.getFornecedor().getNome());
-            }
-        }
-    }
-
-    private void cadastrarNovaCargaManual() {
-        listarTransportadoras();
-        System.out.print("ID da Transportadora: ");
-        int idT = Integer.parseInt(sc.nextLine());
-        Transportadora t = transService.buscarTransportadora(idT);
-        if (t == null) {
-            System.out.println("Transportadora não encontrada!");
-            return;
-        }
-
-        System.out.print("Destino: ");
-        String dest = sc.nextLine();
-
-        listarProdutos();
-        System.out.print("IDs dos produtos da carga separados por vírgula. Ex: 1,3,5: ");
-        String entradaProdutos = sc.nextLine();
-
-        List<Produto> prods = new ArrayList<>();
-        for (String idTexto : entradaProdutos.split(",")) {
-            try {
-                int idProduto = Integer.parseInt(idTexto.trim());
-                Produto produto = prodService.buscarProduto(idProduto);
-
-                if (produto != null) {
-                    prods.add(produto);
-                } else {
-                    System.out.println("Produto ID " + idProduto + " não encontrado e será ignorado.");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("ID inválido ignorado: " + idTexto);
-            }
-        }
-
-        Carga carga = cargaService.cadastrarCarga(t, prods, dest, "Pendente");
-
-        if (carga != null) {
-            System.out.println("Carga gerada com produtos vinculados!");
-        }
-    }
-
-    private void menuProdutos() {
-        int op = -1;
-        while (op != 0) {
-            System.out.println("\n--- SUBMENU PRODUTOS ---");
-            System.out.println("1-Incluir 2-Alterar 3-Excluir 4-Consultar 5-Listar 0-Voltar");
-            System.out.print("Escolha: ");
-            try {
-                op = Integer.parseInt(sc.nextLine());
-                switch (op) {
-                    case 1 -> cadastrarProduto();
-                    case 2 -> alterarProduto();
-                    case 3 -> removerProduto();
-                    case 4 -> consultarProduto();
-                    case 5 -> listarProdutos();
-                    case 0 -> System.out.println("Voltando...");
-                }
-            } catch (Exception e) {
-                System.out.println("Erro na entrada.");
-            }
-        }
-    }
-
-    private void alterarProduto() {
-        System.out.print("ID do Produto: ");
-        int id = Integer.parseInt(sc.nextLine());
-        Produto p = prodService.buscarProduto(id);
-        if (p != null) {
-            System.out.print("Novo Nome (" + p.getNome() + "): ");
-            String nome = sc.nextLine();
-            System.out.print("Novo Preço (" + p.getPreco() + "): ");
-            String precoStr = sc.nextLine();
-
-            if (nome.isEmpty())
-                nome = p.getNome();
-            double preco = precoStr.isEmpty() ? p.getPreco() : Double.parseDouble(precoStr);
-
-            prodService.atualizarProduto(id, p.getFornecedor(), nome, preco, p.getDescricao(), p.getEstoque());
-            System.out.println("Produto atualizado!");
-        } else
-            System.out.println("Produto não encontrado.");
-    }
-
-    private void consultarProduto() {
-        System.out.print("ID ou Nome do Produto: ");
-        String busca = sc.nextLine();
-        try {
-            int id = Integer.parseInt(busca);
-            Produto p = prodService.buscarProduto(id);
-            if (p != null) {
-                System.out.println("Prod: " + p.getNome() + " | Fornecedor: " + p.getFornecedor().getNome()
-                        + " | Preço: " + p.getPreco());
-            } else
-                System.out.println("Não encontrado.");
-        } catch (NumberFormatException e) {
-            System.out.println("Funcionalidade de busca por nome pode ser implementada com Filter.");
-        }
-    }
-
-    private void menuTransportadoras() {
-        int op = -1;
-        while (op != 0) {
-            System.out.println("\n--- SUBMENU TRANSPORTADORAS ---");
-            System.out.println("1-Incluir 2-Alterar 3-Excluir 4-Consultar 5-Listar 0-Voltar");
-            System.out.print("Escolha: ");
-            try {
-                op = Integer.parseInt(sc.nextLine());
-                switch (op) {
-                    case 1 -> cadastrarTransportadora();
-                    case 2 -> alterarTransportadora();
-                    case 3 -> removerTransportadora();
-                    case 4 -> consultarTransportadora();
-                    case 5 -> listarTransportadoras();
-                    case 0 -> System.out.println("Voltando...");
-                }
-            } catch (Exception e) {
-                System.out.println("Erro na entrada.");
-            }
-        }
-    }
-
-    private void cadastrarTransportadora() {
-        System.out.print("Nome: ");
-        String nome = sc.nextLine();
-        System.out.print("CNPJ: ");
-        String cnpj = sc.nextLine();
-        System.out.print("Email: ");
-        String email = sc.nextLine();
-        System.out.print("Telefone: ");
-        String tel = sc.nextLine();
-        System.out.print("Endereço: ");
-        String end = sc.nextLine();
-
-        transService.cadastrarTransportadora(nome, cnpj, email, tel, end);
-    }
-
-    private void listarTransportadoras() {
-        System.out.println("\n--- TRANSPORTADORAS CADASTRADAS ---");
-        for (Transportadora t : transService.listarTransportadoras()) {
-            System.out.println(t.getId() + " - " + t.getNome() + " (" + t.getEmail() + ")");
-        }
-    }
-
-    private void removerTransportadora() {
-        System.out.print("ID para remover: ");
-        int id = Integer.parseInt(sc.nextLine());
-        if (transService.removerTransportadora(id))
-            System.out.println("Removida.");
-        else
-            System.out.println("ID não encontrado.");
-    }
-
-    private void alterarTransportadora() {
-        System.out.print("ID da Transportadora: ");
-        int id = Integer.parseInt(sc.nextLine());
-        Transportadora t = transService.buscarTransportadora(id);
-        if (t != null) {
-            System.out.print("Novo Nome (" + t.getNome() + "): ");
-            String nome = sc.nextLine();
-            if (nome.isEmpty())
-                nome = t.getNome();
-
-            transService.atualizarTransportadora(id, nome, t.getCnpj(), t.getEmail(), t.getTelefone(), t.getEndereco());
-            System.out.println("Dados atualizados!");
-        } else
-            System.out.println("Não encontrada.");
-    }
-
-    private void consultarTransportadora() {
-        System.out.print("ID: ");
-        int id = Integer.parseInt(sc.nextLine());
-        Transportadora t = transService.buscarTransportadora(id);
-        if (t != null) {
-            System.out.println("Nome: " + t.getNome() + " | CNPJ: " + t.getCnpj() + " | Endereço: " + t.getEndereco());
-        } else
-            System.out.println("Não encontrada.");
-    }
-
-    private void cadastrarProduto() {
-        System.out.println("\n--- CADASTRO DE PRODUTO ---");
-        listarFornecedores();
-        System.out.print("ID do Fornecedor: ");
-        int idForn = Integer.parseInt(sc.nextLine());
-
-        Fornecedor f = fornecedorService.buscarFornecedor(idForn);
-        if (f == null) {
-            System.out.println("Fornecedor não encontrado!");
-            return;
-        }
-
-        System.out.print("Nome do Produto: ");
-        String nome = sc.nextLine();
-        System.out.print("Preço: ");
-        double preco = Double.parseDouble(sc.nextLine());
-        System.out.print("Descrição: ");
-        String desc = sc.nextLine();
-        System.out.print("Quantidade em Estoque: ");
-        int estoque = Integer.parseInt(sc.nextLine());
-
-        Produto produto = prodService.cadastrarProduto(f, nome, preco, desc, estoque);
-        if (produto != null) {
-            System.out.println("Produto cadastrado com sucesso!");
-        }
-    }
-
-    private void removerProduto() {
-        System.out.print("Digite o ID do produto para remover: ");
-        int id = Integer.parseInt(sc.nextLine());
-        if (prodService.removerProduto(id)) {
-            System.out.println("Produto removido!");
-        } else {
-            System.out.println("ID não encontrado.");
-        }
-    }
+    
 }

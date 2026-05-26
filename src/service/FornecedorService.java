@@ -13,7 +13,7 @@ public class FornecedorService {
         this.fornecedores = new FornecedorRep();
     }
 
-public void cadastrarFornecedor(String nome, String cnpj, String email, String telefone, String endereco, List<Produto> produtos) {
+    public void cadastrarFornecedor(String nome, String cnpj, String email, String telefone, String endereco, List<Produto> produtos) {
 
         if (nome.isBlank()) {
             System.out.println("Erro! Nome não pode ser vazio.");
