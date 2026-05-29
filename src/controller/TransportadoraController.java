@@ -2,22 +2,25 @@ package controller;
 
 import java.util.Scanner;
 import model.Transportadora;
+import service.CargaService;
 import service.TransportadoraService;
 
 public class TransportadoraController {
     private final Scanner sc;
     private final TransportadoraService transService;
+    private final CargaService cargaService;
 
-    public TransportadoraController(Scanner sc, TransportadoraService transService) {
+    public TransportadoraController(Scanner sc, TransportadoraService transService, CargaService cargaService) {
         this.sc = sc;
         this.transService = transService;
+        this.cargaService = cargaService;
     }
 
     public void menuTransportadoras() {
         int op = -1;
         while (op != 0) {
             System.out.println("\n--- SUBMENU TRANSPORTADORAS ---");
-            System.out.println("1-Incluir 2-Alterar 3-Excluir 4-Consultar 5-Listar 0-Voltar");
+            System.out.println("1-Incluir \n2-Alterar \n3-Excluir \n4-Consultar \n5-Listar \n0-Voltar");
             System.out.print("Escolha: ");
             try {
                 op = Integer.parseInt(sc.nextLine());
@@ -29,7 +32,7 @@ public class TransportadoraController {
                     case 5 -> listarTransportadoras();
                     case 0 -> System.out.println("Voltando...");
                 }
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 System.out.println("Erro na entrada.");
             }
         }
@@ -53,7 +56,17 @@ public class TransportadoraController {
     private void listarTransportadoras() {
         System.out.println("\n--- TRANSPORTADORAS CADASTRADAS ---");
         for (Transportadora t : transService.listarTransportadoras()) {
-            System.out.println(t.getId() + " - " + t.getNome() + " (" + t.getEmail() + ")");
+            System.out.println(
+                t.getId() + " - " + t.getNome() +
+                "\n   CNPJ: " + t.getCnpj() +
+                "\n   Email: " + t.getEmail() +
+                "\n   Telefone: " + t.getTelefone() +
+                "\n   Endereço: " + t.getEndereco() +
+                "\n   Cargas: " + cargaService.listarCargas().stream()
+                    .filter(c -> c.getTransportadora().getId() == t.getId())
+                    .count() + " carga(s)"
+            );
+            System.out.println("-----------------------------------");
         }
     }
 

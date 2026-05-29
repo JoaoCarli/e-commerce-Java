@@ -40,7 +40,6 @@ public class ProdRep {
             p.setFornecedor(novoProduto.getFornecedor());
             p.setNome(novoProduto.getNome());
             p.setPreco(novoProduto.getPreco());
-            p.setDescricao(novoProduto.getDescricao());
             p.setEstoque(novoProduto.getEstoque());
             return true;
         }

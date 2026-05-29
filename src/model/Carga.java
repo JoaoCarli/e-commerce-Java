@@ -8,14 +8,18 @@ public class Carga {
     private Transportadora transportadora;
     private List<Produto> produtos;
     private String destino;
-    private String status; // Ex: "Em trânsito", "Entregue", "Pendente"
+    private StatusCarga status = StatusCarga.PENDENTE;
 
-    public Carga(int id, Transportadora transportadora, List<Produto> produtos, String destino, String status) {
+    public enum StatusCarga {
+        PENDENTE, EM_TRANSITO, ENTREGUE
+    }
+
+    public Carga(int id, Transportadora transportadora, List<Produto> produtos, String destino, StatusCarga status) {
         this.id = id;
         this.transportadora = transportadora;
         this.produtos = produtos == null ? new ArrayList<>() : new ArrayList<>(produtos);
         this.destino = destino;
-        this.status = status;
+        this.status = status == null ? StatusCarga.PENDENTE : status;
     }
 
     public int getId() {
@@ -42,16 +46,6 @@ public class Carga {
         this.produtos = produtos == null ? new ArrayList<>() : new ArrayList<>(produtos);
     }
 
-    public void adicionarProduto(Produto produto) {
-        if (produto != null && !produtos.contains(produto)) {
-            produtos.add(produto);
-        }
-    }
-
-    public void removerProduto(Produto produto) {
-        produtos.remove(produto);
-    }
-
     public String getDestino() {
         return destino;
     }
@@ -60,11 +54,11 @@ public class Carga {
         this.destino = destino;
     }
 
-    public String getStatus() {
+    public StatusCarga getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusCarga status) {
         this.status = status;
     }
 }

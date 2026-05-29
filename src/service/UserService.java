@@ -1,13 +1,11 @@
 package service;
 
 import java.util.List;
-import java.util.Scanner;
 import model.Usuario;
 import repository.UserRep;
 
 public class UserService {
     private final UserRep usuarios;
-    private Scanner sc;
     private int contadorId = 1;
 
     public UserService() {
@@ -15,8 +13,11 @@ public class UserService {
     }
 
     public Usuario login(String email, String senha) {
+        email = email.trim();
+        senha = senha.trim();
+
         for (Usuario u : usuarios.listarUser()) {
-            if (u.getEmail().equals(email) && u.getSenha().equals(senha)) {
+            if (u.getEmail().equalsIgnoreCase(email) && u.getSenha().equals(senha)) {
                 return u;
             }
         }
@@ -25,6 +26,7 @@ public class UserService {
 
     public void register(String nome, String email, String senha, boolean admin) {
         if (validarUsuario(nome, email, senha)){
+            System.out.println("kkk");
             return;
         }
 
@@ -32,31 +34,12 @@ public class UserService {
         usuarios.salvarUser(newUser);
     }
 
-    public void registerFormatado(){
-        try{
-        System.out.print("Nome: ");
-        String nome = sc.nextLine();
-
-        System.out.print("Email: ");
-        String email = sc.nextLine();
-
-        System.out.print("Senha: ");
-        String senha = sc.nextLine();
-
-        System.out.print("É administrador? (s/n): ");
-        String respostaAdmin = sc.nextLine();
-        boolean admin = respostaAdmin.equalsIgnoreCase("s");
-
-        register(nome, email, senha, admin);
-
-        System.out.print("Usuário cadastrado com sucesso!");
-        } catch (Exception e){
-            System.out.println("Erro ao cadastrar usuário, verifique os dados e tente novamente! " + e.getMessage());
-        }
+    public boolean validarUsuario(String nome, String email, String senha){
+        return nome.isBlank() || email.isBlank() || senha.isBlank() || emailJaExiste(email);
     }
 
-    public boolean validarUsuario(String nome, String email, String senha){
-        return !nome.isBlank() && !email.isBlank() && !senha.isBlank() || emailJaExiste(email);
+    public List<Usuario> listarUsuarios() {
+        return usuarios.listarUser();
     }
 
     public String listaUsuarioFormatada() {
@@ -71,10 +54,6 @@ public class UserService {
         }
 
         return sb.toString();
-    }
-
-    public List<Usuario> listarUsuarios() {
-        return usuarios.listarUser();
     }
 
     public Usuario buscarUsuario(int id) {
@@ -93,6 +72,13 @@ public class UserService {
     }
 
     public boolean atualizarUsuario(int id, String nome, String email, String senha, boolean admin) {
+        Usuario atual = usuarios.buscarPorId(id);
+        if (atual == null) return false;
+
+        if (nome.isBlank()) nome = atual.getNome();
+        if (email.isBlank()) email = atual.getEmail();
+        if (senha.isBlank()) senha = atual.getSenha();
+
         Usuario novoUsuario = new Usuario(id, nome, email, senha, admin);
         return usuarios.atualizarUser(id, novoUsuario);
     }

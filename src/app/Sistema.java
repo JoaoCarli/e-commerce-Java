@@ -10,14 +10,14 @@ public class Sistema {
     private final Scanner sc = new Scanner(System.in);
     private final UserService userService = new UserService();
     private final FornecedorService fornecedorService = new FornecedorService();
-    private final ProdService prodService = new ProdService();
+    private final ProdService prodService = new ProdService(fornecedorService);
     private final TransportadoraService transService = new TransportadoraService();
     private final CargaService cargaService = new CargaService();
 
     private final UserController userController = new UserController(sc, userService);
     private final FornecedorController fornecedorController = new FornecedorController(sc, fornecedorService);
     private final ProdutoController produtoController = new ProdutoController(sc, prodService);
-    private final TransportadoraController transController = new TransportadoraController(sc, transService);
+    private final TransportadoraController transController = new TransportadoraController(sc, transService, cargaService);
     private final CargaController cargaController = new CargaController(sc, cargaService);
 
     private Usuario logado;
@@ -39,17 +39,24 @@ public class Sistema {
         userService.register("Admin Master", "admin@gmail.com", "Mortadela1", true);
         userService.register("Usuario Comum", "user@hotmail.com", "Gargamel", false);
 
-        fornecedorService.cadastrarFornecedor("Fornecedor A", "12.345.678/0001-95", "fornecedorA@gmail.com", "54 996259874", "End A",
+        fornecedorService.cadastrarFornecedor("Móveis Sul", "12.345.678/0001-95", "fornecedorA@gmail.com", "54 996259874", "End A",
                 new ArrayList<>());
-        fornecedorService.cadastrarFornecedor("Fornecedor B", "98.765.432/0001-23", "fornecedorB@gmail.com", "11 996352541", "End B",
+        fornecedorService.cadastrarFornecedor("Peças InfoGames", "98.765.432/0001-23", "fornecedorB@gmail.com", "11 996352541", "End B",
                 new ArrayList<>());
-        fornecedorService.cadastrarFornecedor("Fornecedor C", "45.678.912/0001-06", "fornecedorC@gmail.com", "55 996986532", "End C",
+        fornecedorService.cadastrarFornecedor("Oficina & Cia", "45.678.912/0001-06", "fornecedorC@gmail.com", "55 996986532", "End C",
                 new ArrayList<>());
 
-        for (int fId = 1; fId <= 3; fId++) {
+        String[][] nomes = {
+            {"Cadeira", "Mesa", "Porta de Madeira", "Geladeira", "Fogão"},
+            {"Teclado", "Mouse", "Monitor", "Processador", "Placa de vídeo", "Memória",  },
+            {"Chave de Fenda", "Martelo", "Alicate", "Furadeira"}
+        };
+
+        for (int fId = 1; fId <= fornecedorService.listarFornecedores().size(); fId++) {
             Fornecedor f = fornecedorService.buscarFornecedor(fId);
-            for (int p = 1; p <= 3; p++) {
-                prodService.cadastrarProduto(f, "Produto " + p + " do Fornecedor " + fId, 10.0 * p, "Desc", 100);
+            for (int p = 0; p < nomes[fId - 1].length; p++) {
+                int estoque = (int) (Math.random() * 50);
+                prodService.cadastrarProduto(f, nomes[fId - 1][p], 10.0 * (p + 1), estoque);
             }
         }
 
@@ -60,10 +67,10 @@ public class Sistema {
         transService.cadastrarTransportadora("Transp Global", "56.789.123/0001-38", "contato@global.com", "88 996854796",
                 "Galpão 3");
 
-        cargaService.cadastrarCarga(transService.buscarTransportadora(1), prodService.buscarProdutosPorIds(1, 2, 3), "Porto Alegre", "Em trânsito");
-        cargaService.cadastrarCarga(transService.buscarTransportadora(2), prodService.buscarProdutosPorIds(4, 5), "Caxias do Sul", "Pendente");
-        cargaService.cadastrarCarga(transService.buscarTransportadora(1), prodService.buscarProdutosPorIds(6, 7, 8), "Bento Gonçalves", "Entregue");
-        cargaService.cadastrarCarga(transService.buscarTransportadora(3), prodService.buscarProdutosPorIds(9), "Vacaria", "Em trânsito");
+        cargaService.cadastrarCarga(transService.buscarTransportadora(1), prodService.buscarProdutosPorIds(1, 2, 3), "Porto Alegre", Carga.StatusCarga.EM_TRANSITO);
+        cargaService.cadastrarCarga(transService.buscarTransportadora(2), prodService.buscarProdutosPorIds(4, 5), "Caxias do Sul", Carga.StatusCarga.PENDENTE);
+        cargaService.cadastrarCarga(transService.buscarTransportadora(1), prodService.buscarProdutosPorIds(6, 7, 8), "Bento Gonçalves", Carga.StatusCarga.ENTREGUE);
+        cargaService.cadastrarCarga(transService.buscarTransportadora(3), prodService.buscarProdutosPorIds(9), "Vacaria", Carga.StatusCarga.EM_TRANSITO);
     }
 
     private void login() {
@@ -136,7 +143,7 @@ public class Sistema {
                         }
                     }
                 }
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 System.out.println("Entrada inválida.");
             }
         }

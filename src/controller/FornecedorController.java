@@ -18,7 +18,7 @@ public class FornecedorController {
         int op = -1;
         while (op != 0) {
             System.out.println("\n--- SUBMENU FORNECEDORES ---");
-            System.out.println("1-Incluir 2-Alterar 3-Excluir 4-Consultar 5-Listar 0-Voltar");
+            System.out.println("1-Incluir \n2-Alterar \n3-Excluir \n4-Consultar \n5-Listar \n0-Voltar");
             op = Integer.parseInt(sc.nextLine());
             switch (op) {
                 case 1 -> cadastrarFornecedor();

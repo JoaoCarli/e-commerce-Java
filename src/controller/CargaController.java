@@ -7,6 +7,7 @@ import model.Carga;
 import model.Produto;
 import model.Transportadora;
 import service.CargaService;
+import service.FornecedorService;
 import service.ProdService;
 import service.TransportadoraService;
 
@@ -14,7 +15,8 @@ public class CargaController {
     private final Scanner sc;
     private final CargaService cargaService;
     private final TransportadoraService transService = new TransportadoraService();
-    private final ProdService prodService = new ProdService();
+    private final FornecedorService f = new FornecedorService();
+    private final ProdService prodService = new ProdService(f);
     
 
     public CargaController(Scanner sc, CargaService cargaService) {
@@ -26,11 +28,13 @@ public class CargaController {
         int op = -1;
         while (op != 0) {
             System.out.println("\n--- SUBMENU CARGAS ---");
-            System.out.println("1-Nova Carga 2-Listar Cargas 0-Voltar");
+            System.out.println("1-Nova Carga \n2-Listar Cargas \n3-Alterar Cargas \n4-Alterar Produtos da Carga \n5-Remover Produtos da Carga \n0-Voltar");
             op = Integer.parseInt(sc.nextLine());
             switch (op) {
                 case 1 -> cadastrarNovaCargaManual();
                 case 2 -> listarCargas();
+                case 3 -> alterarCarga();
+                case 4 -> alterarProdutoCarga();
             }
         }
     }
@@ -82,10 +86,72 @@ public class CargaController {
             }
         }
 
-        Carga carga = cargaService.cadastrarCarga(t, prods, dest, "Pendente");
+        System.out.println("Escolha o Status: ");
+        System.out.println("1 - Pendente");
+        System.out.println("2 - Em trânsito");
+        System.out.println("3 - Entregue");
+        System.out.print("Opção: ");
 
+        int opcaoStatus = Integer.parseInt(sc.nextLine());
+
+        Carga.StatusCarga status = switch (opcaoStatus) {
+            case 2 -> Carga.StatusCarga.EM_TRANSITO;
+            case 3 -> Carga.StatusCarga.ENTREGUE;
+            default -> Carga.StatusCarga.PENDENTE;
+        };
+
+        Carga carga = cargaService.cadastrarCarga(t, prods, dest, status);
         if (carga != null) {
             System.out.println("Carga gerada com produtos vinculados!");
         }
+    }
+
+    private void alterarCarga(){
+        listarCargas();
+        System.out.println("ID para alterar: ");
+        int id = Integer.parseInt(sc.nextLine());
+        Carga c = cargaService.buscarCarga(id);
+        if (c == null) {
+            System.out.println("Carga não encontrada.");
+            return;
+        }
+
+        System.out.println("Status (" + c.getStatus() + "): ");
+        System.out.println("1 - Pendente");
+        System.out.println("2 - Em trânsito");
+        System.out.println("3 - Entregue");
+        System.out.print("Opção: ");
+
+        int opcaoStatus = Integer.parseInt(sc.nextLine());
+
+        Carga.StatusCarga status = switch (opcaoStatus) {
+            case 2 -> Carga.StatusCarga.EM_TRANSITO;
+            case 3 -> Carga.StatusCarga.ENTREGUE;
+            default -> Carga.StatusCarga.PENDENTE;
+        };
+
+        Transportadora transportadora = c.getTransportadora();
+        String destino = c.getDestino();
+
+        if (c.getStatus() == Carga.StatusCarga.PENDENTE) {
+            transService.listarTransportadoras();
+            System.out.print("ID da Transportadora (" + c.getTransportadora().getNome() + "): ");
+            String inputTransp = sc.nextLine();
+            Transportadora t = transService.buscarTransportadora(Integer.parseInt(inputTransp));
+            
+            System.out.print("Destino (" + c.getDestino() + "): ");
+            String inputDestino = sc.nextLine();
+            if (cargaService.validaCarga(t, inputDestino)){
+                return;
+            }
+        }
+        cargaService.atualizarCarga(id, transportadora, c.getProdutos(), destino, status);
+        System.out.println("Carga atualizada!");
+    }
+
+    private void alterarProdutoCarga(){
+        listarCargas();
+        System.out.println("ID da Carga para alterar: ");
+        int id = Integer.parseInt(sc.nextLine());
     }
 }

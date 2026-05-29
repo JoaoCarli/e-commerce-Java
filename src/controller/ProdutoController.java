@@ -20,7 +20,7 @@ public class ProdutoController {
         int op = -1;
         while (op != 0) {
             System.out.println("\n--- SUBMENU PRODUTOS ---");
-            System.out.println("1-Incluir 2-Alterar 3-Excluir 4-Consultar 5-Listar 0-Voltar");
+            System.out.println("1-Incluir \n2-Alterar \n3-Excluir \n4-Consultar \n5-Listar \n0-Voltar");
             System.out.print("Escolha: ");
             try {
                 op = Integer.parseInt(sc.nextLine());
@@ -32,8 +32,8 @@ public class ProdutoController {
                     case 5 -> listarProdutos();
                     case 0 -> System.out.println("Voltando...");
                 }
-            } catch (Exception e) {
-                System.out.println("Erro na entrada.");
+            } catch (NumberFormatException e) {
+                System.out.println("Erro na entrada: formato inválido.");
             }
         }
     }
@@ -48,14 +48,29 @@ public class ProdutoController {
             System.out.print("Novo Preço (" + p.getPreco() + "): ");
             String precoStr = sc.nextLine();
 
-            if (nome.isEmpty())
-                nome = p.getNome();
+            if (nome.isEmpty()) nome = p.getNome();
             double preco = precoStr.isEmpty() ? p.getPreco() : Double.parseDouble(precoStr);
 
-            prodService.atualizarProduto(id, p.getFornecedor(), nome, preco, p.getDescricao(), p.getEstoque());
+            System.out.print("Alterar Fornecedor? (s/n): ");
+            String alterarForn = sc.nextLine();
+            Fornecedor fornecedor = p.getFornecedor();
+            if (alterarForn.equalsIgnoreCase("s")) {
+                fornecedorService.listarFornecedores().forEach(f ->
+                    System.out.println(f.getId() + " - " + f.getNome()));
+                System.out.print("ID do Fornecedor: ");
+                int idForn = Integer.parseInt(sc.nextLine());
+                Fornecedor novoForn = fornecedorService.buscarFornecedor(idForn);
+                if (novoForn != null)
+                    fornecedor = novoForn;
+                else
+                    System.out.println("Fornecedor não encontrado, mantendo o atual.");
+            }
+
+            prodService.atualizarProduto(id, fornecedor, nome, preco, p.getEstoque());
             System.out.println("Produto atualizado!");
-        } else
+        }else {
             System.out.println("Produto não encontrado.");
+        }
     }
 
     private void consultarProduto() {
@@ -99,12 +114,10 @@ public class ProdutoController {
         String nome = sc.nextLine();
         System.out.print("Preço: ");
         double preco = Double.parseDouble(sc.nextLine());
-        System.out.print("Descrição: ");
-        String desc = sc.nextLine();
         System.out.print("Quantidade em Estoque: ");
         int estoque = Integer.parseInt(sc.nextLine());
 
-        Produto produto = prodService.cadastrarProduto(f, nome, preco, desc, estoque);
+        Produto produto = prodService.cadastrarProduto(f, nome, preco, estoque);
         if (produto != null) {
             System.out.println("Produto cadastrado com sucesso!");
         }

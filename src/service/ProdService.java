@@ -8,13 +8,15 @@ import repository.ProdRep;
 
 public class ProdService {
     private final ProdRep produtos;
+    private final FornecedorService fornecedorService;
     private int contadorId = 1;
 
-    public ProdService() {
+    public ProdService(FornecedorService fornecedorService) {
         this.produtos = new ProdRep();
+        this.fornecedorService = new FornecedorService();
     }
 
-    public Produto cadastrarProduto(Fornecedor fornecedor, String nome, double preco, String descricao, int estoque) {
+    public Produto cadastrarProduto(Fornecedor fornecedor, String nome, double preco, int estoque) {
         if (fornecedor == null) {
             System.out.println("Erro! Fornecedor não informado.");
             return null;
@@ -35,10 +37,10 @@ public class ProdService {
             return null;
         }
 
-        Produto newProduto = new Produto(contadorId++, fornecedor, nome, preco, descricao, estoque);
+        Produto newProduto = new Produto(contadorId++, fornecedor, nome, preco, estoque);
         produtos.salvarProd(newProduto);
 
-        fornecedor.adicionarProduto(newProduto);
+        fornecedorService.adicionarProduto(newProduto, fornecedor.getId());
 
         return newProduto;
     }
@@ -75,13 +77,13 @@ public class ProdService {
         boolean removido = produtos.removerProd(id);
 
         if (removido && produto.getFornecedor() != null) {
-            produto.getFornecedor().removerProduto(produto);
+            fornecedorService.removerProduto(produto, produto.getFornecedor().getId());
         }
 
         return removido;
     }
 
-    public boolean atualizarProduto(int id, Fornecedor fornecedor, String nome, double preco, String descricao, int estoque) {
+    public boolean atualizarProduto(int id, Fornecedor fornecedor, String nome, double preco, int estoque) {
 
         Produto produtoAtual = produtos.buscarPorId(id);
 
@@ -90,14 +92,14 @@ public class ProdService {
         }
 
         Fornecedor fornecedorAntigo = produtoAtual.getFornecedor();
-        Produto novoProduto = new Produto(id, fornecedor, nome, preco, descricao, estoque);
+        Produto novoProduto = new Produto(id, fornecedor, nome, preco, estoque);
         boolean atualizado = produtos.atualizarProd(id, novoProduto);
 
         if (atualizado && fornecedorAntigo != fornecedor) {
             if (fornecedorAntigo != null) {
-                fornecedorAntigo.removerProduto(produtoAtual);
+                fornecedorService.removerProduto(produtoAtual, fornecedorAntigo.getId());
             }
-            fornecedor.adicionarProduto(produtoAtual);
+            fornecedorService.adicionarProduto(produtoAtual, fornecedor.getId());
         }
 
         return atualizado;

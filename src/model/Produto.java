@@ -5,15 +5,13 @@ public class Produto {
     private Fornecedor fornecedor;
     private String nome;
     private double preco;
-    private String descricao;
     private int estoque;
 
-    public Produto(int id, Fornecedor fornecedor, String nome, double preco, String descricao, int estoque) {
+    public Produto(int id, Fornecedor fornecedor, String nome, double preco, int estoque) {
         this.id = id;
         this.fornecedor = fornecedor;
         this.nome = nome;
         this.preco = preco;
-        this.descricao = descricao;
         this.estoque = estoque;
     }
 
@@ -47,14 +45,6 @@ public class Produto {
 
     public void setPreco(double preco) {
         this.preco = preco;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
     }
 
     public int getEstoque() {

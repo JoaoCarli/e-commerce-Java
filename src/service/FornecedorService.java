@@ -5,7 +5,7 @@ import model.Fornecedor;
 import model.Produto;
 import repository.FornecedorRep;
 
-public class FornecedorService {
+public class FornecedorService extends EmpresaService{
     private final FornecedorRep fornecedores;
     private int contadorId = 1;
 
@@ -13,49 +13,25 @@ public class FornecedorService {
         this.fornecedores = new FornecedorRep();
     }
 
+    @Override
+    public boolean cnpjJaExiste(String cnpj) {
+        String cnpjLimpo = limparCnpj(cnpj);
+
+        for (Fornecedor f : fornecedores.listarFornecedor()) {
+            if (limparCnpj(f.getCnpj()).equals(cnpjLimpo)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void cadastrarFornecedor(String nome, String cnpj, String email, String telefone, String endereco, List<Produto> produtos) {
-
-        if (nome.isBlank()) {
-            System.out.println("Erro! Nome não pode ser vazio.");
+        if (!verificaCadastro(nome, cnpj, email, telefone, endereco)){
             return;
         }
 
-        if (!cnpjValido(cnpj)) {
-            System.out.println("Erro! CNPJ inválido.");
-            return;
-        }
-
-        if (cnpjJaExiste(cnpj)) {
-            System.out.println("Erro! Já existe um fornecedor com esse CNPJ.");
-            return;
-        }
-
-        if (email.isBlank()) {
-            System.out.println("Erro! Email não pode ser vazio.");
-            return;
-        }
-
-        if (!email.contains("@")) {
-            System.out.println("Erro! Email inválido.");
-            return;
-        }
-
-        if (telefone.isBlank()) {
-            System.out.println("Erro! Telefone não pode ser vazio.");
-            return;
-        }
-
-        if (!telefone.matches("[0-9]+")) {
-            System.out.println("Erro! Telefone deve conter apenas números.");
-            return;
-        }
-
-        if (endereco.isBlank()) {
-            System.out.println("Erro! Endereço não pode ser vazio.");
-            return;
-        }
-
-        Fornecedor newFornecedor = new Fornecedor(contadorId++, nome, cnpj, email, telefone, endereco, produtos);
+        Fornecedor newFornecedor = new Fornecedor(produtos, cnpj, email, endereco, contadorId++, nome, telefone);
         fornecedores.salvarFornecedor(newFornecedor);
 
         System.out.println("Fornecedor cadastrado com sucesso!");
@@ -70,42 +46,31 @@ public class FornecedorService {
     }
 
     public boolean removerFornecedor(int id) {
+        Fornecedor f = buscarFornecedor(id);
+        if (f != null && !f.getProdutos().isEmpty()) {
+            System.out.println("Erro: fornecedor possui produtos cadastrados.");
+            return false;
+        }
         return fornecedores.removerFornecedor(id);
     }
 
     public boolean atualizarFornecedor(int id, String novoNome, String cnpj, String email, String telefone, String endereco, List<Produto> produtos) {
 
-        Fornecedor novoFornecedor = new Fornecedor(id, novoNome, cnpj, email, telefone, endereco, produtos);
+        Fornecedor novoFornecedor = new Fornecedor(produtos, cnpj, email, endereco, id, novoNome, telefone);
         return fornecedores.atualizarFornecedor(id, novoFornecedor);
     }
 
-    private String limparCnpj(String cnpj) {
-        if (cnpj == null) {
-            return "";
+    public void adicionarProduto(Produto produto, int fId) {
+        Fornecedor f = buscarFornecedor(fId);
+        if (f != null && produto != null && !f.getProdutos().contains(produto)) {
+            f.getProdutos().add(produto);
         }
-
-        return cnpj.replaceAll("[^0-9]", "");
     }
 
-    public boolean cnpjValido(String cnpj) {
-        String numeros = limparCnpj(cnpj);
-
-        if (numeros.length() != 14) {
-            return false;
+    public void removerProduto(Produto produto, int fId) {
+        Fornecedor f = buscarFornecedor(fId);
+        if (f != null && produto != null && f.getProdutos().contains(produto)) {
+            f.getProdutos().remove(produto);
         }
-
-        return !numeros.matches("(\\d)\\1{13}");
-    }
-
-    public boolean cnpjJaExiste(String cnpj) {
-        String cnpjLimpo = limparCnpj(cnpj);
-
-        for (Fornecedor f : fornecedores.listarFornecedor()) {
-            if (limparCnpj(f.getCnpj()).equals(cnpjLimpo)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
