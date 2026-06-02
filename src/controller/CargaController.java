@@ -17,24 +17,27 @@ public class CargaController {
     private final TransportadoraService transService = new TransportadoraService();
     private final FornecedorService f = new FornecedorService();
     private final ProdService prodService = new ProdService(f);
+    private final ProdutoController produtoController;
     
-
     public CargaController(Scanner sc, CargaService cargaService) {
         this.sc = sc;
         this.cargaService = cargaService;
+        this.produtoController = new ProdutoController(sc, prodService);
     }
 
     public void menuCargas() {
         int op = -1;
         while (op != 0) {
             System.out.println("\n--- SUBMENU CARGAS ---");
-            System.out.println("1-Nova Carga \n2-Listar Cargas \n3-Alterar Cargas \n4-Alterar Produtos da Carga \n5-Remover Produtos da Carga \n0-Voltar");
+            System.out.println("1-Nova Carga \n2-Listar Cargas \n3-Alterar Cargas \n4-Alterar Produtos da Carga \n5-Remover Produtos da Carga \n6-Excluir Carga \n0-Voltar");
             op = Integer.parseInt(sc.nextLine());
             switch (op) {
                 case 1 -> cadastrarNovaCargaManual();
                 case 2 -> listarCargas();
                 case 3 -> alterarCarga();
-                case 4 -> alterarProdutoCarga();
+                case 4 -> adicionarProdutoCarga();
+                case 5 -> removerProdutoCarga();
+                case 6 -> removerCarga();
             }
         }
     }
@@ -43,7 +46,7 @@ public class CargaController {
         System.out.println("\n--- LISTA DE CARGAS ---");
         for (Carga c : cargaService.listarCargas()) {
             System.out.println("ID: " + c.getId() + " | Destino: " + c.getDestino() + " | Transp: "
-                    + c.getTransportadora().getNome() + " | Status: " + c.getStatus());
+                    + c.getTransportadora().getNome() + " | Status: " + c.getStatus().getLabel());
 
             System.out.println("Produtos da carga:");
             for (Produto p : c.getProdutos()) {
@@ -149,9 +152,76 @@ public class CargaController {
         System.out.println("Carga atualizada!");
     }
 
-    private void alterarProdutoCarga(){
+    private void removerCarga(){
+        listarCargas();
+        System.out.print("ID da Carga: ");
+        int id = Integer.parseInt(sc.nextLine());
+        Carga c = cargaService.buscarCarga(id);
+        if (c == null) {
+            System.out.println("Carga não encontrada.");
+            return;
+        }else if (c.getStatus() != Carga.StatusCarga.PENDENTE){
+            System.out.println("Carga em trânsito ou entregue e não pode ser alterada.");
+            return;
+        }else if (!c.getProdutos().isEmpty()) {
+            System.out.println("Erro! Remova os produtos da carga antes de excluí-la.");
+            return;
+        }
+
+        cargaService.removerCarga(id);
+        System.out.println("Carga removida com sucesso!");
+    }
+
+    private void adicionarProdutoCarga(){
         listarCargas();
         System.out.println("ID da Carga para alterar: ");
-        int id = Integer.parseInt(sc.nextLine());
+        int idCarga = Integer.parseInt(sc.nextLine());
+        Carga c = cargaService.buscarCarga(idCarga);
+        if (c == null) {
+            System.out.println("Carga não encontrada.");
+            return;
+        }else if (c.getStatus() != Carga.StatusCarga.PENDENTE){
+            System.out.println("Carga em trânsito ou entregue e não pode ser alterada.");
+            return;
+        }
+
+        produtoController.listarProdutos();
+        System.out.print("ID do Produto: ");
+        int idProduto = Integer.parseInt(sc.nextLine());
+        Produto p = prodService.buscarProduto(idProduto);
+        if (p == null) {
+            System.out.println("Produto não encontrado.");
+            return;
+        }
+
+        cargaService.adicionarProduto(p, idCarga);
+        System.out.println("Produto adicionado à carga!");
+    }
+
+    private void removerProdutoCarga() {
+        listarCargas();
+        System.out.print("ID da Carga: ");
+        int idCarga = Integer.parseInt(sc.nextLine());
+        Carga c = cargaService.buscarCarga(idCarga);
+        if (c == null) {
+            System.out.println("Carga não encontrada.");
+            return;
+        }else if (c.getStatus() != Carga.StatusCarga.PENDENTE){
+            System.out.println("Carga em trânsito ou entregue e não pode ser alterada.");
+            return;
+        }
+
+        c.getProdutos().forEach(p ->
+            System.out.println(p.getId() + " - " + p.getNome()));
+        System.out.print("ID do Produto: ");
+        int idProduto = Integer.parseInt(sc.nextLine());
+        Produto p = prodService.buscarProduto(idProduto);
+        if (p == null) {
+            System.out.println("Produto não encontrado.");
+            return;
+        }
+
+        cargaService.removerProduto(p, idCarga);
+        System.out.println("Produto removido da carga!");
     }
 }

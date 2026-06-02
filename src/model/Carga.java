@@ -11,7 +11,19 @@ public class Carga {
     private StatusCarga status = StatusCarga.PENDENTE;
 
     public enum StatusCarga {
-        PENDENTE, EM_TRANSITO, ENTREGUE
+        PENDENTE("Pendente"), 
+        EM_TRANSITO("Em trânsito"), 
+        ENTREGUE("Entregue");
+
+        private final String label;
+
+        StatusCarga (String label) {
+            this.label = label;
+        }
+
+        public String getLabel(){
+            return label;
+        }
     }
 
     public Carga(int id, Transportadora transportadora, List<Produto> produtos, String destino, StatusCarga status) {

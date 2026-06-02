@@ -37,19 +37,16 @@ package model {
         - id : int
         - nome : String
         - preco : double
-        - descricao : String
         - estoque : int
         - fornecedor: Fornecedor
         + getId() : int
         + getNome() : String
         + getPreco() : double
-        + getDescricao() : String
         + getEstoque() : int
         + getFornecedor() : Fornecedor
         + setId(int)
         + setNome(String)
         + setPreco(double)
-        + setDescricao(String)
         + setEstoque(int)
         + setFornecedor(Fornecedor)
     }
@@ -60,21 +57,26 @@ package model {
     class Carga {
         - id : int
         - destino : String
-        - status : String
-        - transportadora: Transportadora
+        - status : StatusCarga
+        - transportadora : Transportadora
         - produtos : List<Produto>
         + getId() : int
         + getDestino() : String
-        + getStatus() : String
+        + getStatus() : StatusCarga
         + getProdutos() : List<Produto>
         + getTransportadora() : Transportadora
         + setId(int)
-        + setDestino(String)        
-        + setStatus(String)
+        + setDestino(String)
+        + setStatus(StatusCarga)
         + setProdutos(List<Produto>)
         + setTransportadora(Transportadora)
-        + adicionarProduto(Produto)
-        + removerProduto(Produto)
+    }
+
+    enum StatusCarga {
+        PENDENTE
+        EM_TRANSITO
+        ENTREGUE
+        + getLabel() : String
     }
 
     abstract class Empresa {
@@ -202,16 +204,16 @@ package service {
         + listarCargas() : List<Carga>
         + buscarCarga(int) : Carga
         + removerCarga(int) : boolean
+        + validaCarga(Transportadora transportadora, String destino) : boolean
         + atualizarCarga(int, Transportadora, List<Produto>, String, String) : boolean
+        + adicionarProduto(Produto produto, int cId)
+        + removerProduto(Produto produto, int cId)
     }
 
     abstract class EmpresaService {
         # limparCnpj(String) : String
         # cnpjValido(String) : boolean
         # {abstract} cnpjJaExiste(String) : boolean
-        # emailValido(String) : boolean
-        # limparTelefone(String) : String
-        # telefoneValido(String) : boolean
         # verificaCadastro(String, String, String, String, String) : boolean
     }
 }
@@ -224,6 +226,7 @@ package controller {
         - userService : UserService
         + menuUsuario()
         + registrUsuario()
+        + alterarUsuario()
         + listarUsuarios()
         + removerUsuario()
     }
@@ -254,6 +257,7 @@ package controller {
     class TransportadoraController {
         - sc : Scanner
         - transService : TransportadoraService
+        - cargaService : CargaService
         + menuTransportadoras()
         + cadastrarTransportadora()
         + alterarTransportadora()
@@ -267,9 +271,15 @@ package controller {
         - cargaService : CargaService
         - transService : TransportadoraService
         - prodService : ProdService
+        - fornecedorService : FornecedorService
+        - produtoController : ProdutoController
         + menuCargas()
-        + cadastrarNovaCargaManual()
         + listarCargas()
+        - cadastrarNovaCargaManual()
+        - alterarCarga()
+        - adicionarProdutoCarga()
+        - removerProdutoCarga()
+        - removerCarga()
     }
 }
 
@@ -300,6 +310,7 @@ Fornecedor "1" o-- "0..*" Produto : possui >
 Produto "0..*" --> "1" Fornecedor : pertence a >
 Carga "1" o-- "1..*" Produto : contém >
 Carga "0..*" --> "1" Transportadora : transportada por >
+Carga --> StatusCarga
 Empresa <|-- Fornecedor
 Empresa <|-- Transportadora
 

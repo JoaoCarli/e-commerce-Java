@@ -39,6 +39,7 @@ public class ProdutoController {
     }
 
     private void alterarProduto() {
+        listarProdutos();
         System.out.print("ID do Produto: ");
         int id = Integer.parseInt(sc.nextLine());
         Produto p = prodService.buscarProduto(id);

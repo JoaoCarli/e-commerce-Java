@@ -13,7 +13,7 @@ public class TransportadoraService extends EmpresaService{
     }
 
     @Override
-    public boolean cnpjJaExiste(String cnpj) {
+    protected boolean cnpjJaExiste(String cnpj) {
         String cnpjLimpo = limparCnpj(cnpj);
 
         for (Transportadora t : transportadoras.listarTransp()) {

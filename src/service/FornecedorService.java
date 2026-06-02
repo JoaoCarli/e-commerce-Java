@@ -14,7 +14,7 @@ public class FornecedorService extends EmpresaService{
     }
 
     @Override
-    public boolean cnpjJaExiste(String cnpj) {
+    protected boolean cnpjJaExiste(String cnpj) {
         String cnpjLimpo = limparCnpj(cnpj);
 
         for (Fornecedor f : fornecedores.listarFornecedor()) {

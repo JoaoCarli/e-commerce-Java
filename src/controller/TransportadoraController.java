@@ -80,6 +80,7 @@ public class TransportadoraController {
     }
 
     private void alterarTransportadora() {
+        listarTransportadoras();
         System.out.print("ID da Transportadora: ");
         int id = Integer.parseInt(sc.nextLine());
         Transportadora t = transService.buscarTransportadora(id);

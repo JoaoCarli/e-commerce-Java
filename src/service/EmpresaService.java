@@ -10,7 +10,6 @@ public abstract class EmpresaService {
         return cnpj.replaceAll("[^0-9]", "");
     }
 
-
     protected boolean cnpjValido(String cnpj) {
         String numeros = limparCnpj(cnpj);
 
@@ -22,7 +21,6 @@ public abstract class EmpresaService {
     }
 
     protected abstract boolean cnpjJaExiste(String cnpj);
-
 
     protected boolean verificaCadastro(String nome, String cnpj, String email, String telefone, String endereco) {
     if (nome.isBlank()) {

@@ -50,6 +50,7 @@ public class FornecedorController {
     }
 
     private void alterarFornecedor() {
+        listarFornecedores();
         System.out.print("ID do Fornecedor: ");
         int id = Integer.parseInt(sc.nextLine());
 
