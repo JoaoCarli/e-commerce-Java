@@ -1,0 +1,355 @@
+@startuml modelo_classe
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 80
+top to bottom direction
+
+'  MODEL
+package model {
+
+    class Usuario {
+        - id : int
+        - nome : String
+        - email : String
+        - senha : String
+        - isAdmin : boolean
+        + getId() : int
+        + getNome() : String
+        + getEmail() : String
+        + getSenha() : String
+        + isAdmin() : boolean
+        + setId(int)
+        + setNome(String)
+        + setEmail(String)
+        + setSenha(String)
+        + setisAdmin(boolean)
+    }
+
+    class Fornecedor extends Empresa {
+        - produtos : List<Produto>
+        + getProdutos() : List<Produto>
+        + setProdutos(List<Produto>)
+    }
+
+    class Produto {
+        - id : int
+        - nome : String
+        - preco : double
+        - estoque : int
+        - fornecedor: Fornecedor
+        + getId() : int
+        + getNome() : String
+        + getPreco() : double
+        + getEstoque() : int
+        + getFornecedor() : Fornecedor
+        + setId(int)
+        + setNome(String)
+        + setPreco(double)
+        + setEstoque(int)
+        + setFornecedor(Fornecedor)
+    }
+
+    class Transportadora extends Empresa {
+    }
+
+    class Carga {
+        - id : int
+        - destino : String
+        - status : StatusCarga
+        - transportadora : Transportadora
+        - produtos : List<Produto>
+        + getId() : int
+        + getDestino() : String
+        + getStatus() : StatusCarga
+        + getProdutos() : List<Produto>
+        + getTransportadora() : Transportadora
+        + setId(int)
+        + setDestino(String)
+        + setStatus(StatusCarga)
+        + setProdutos(List<Produto>)
+        + setTransportadora(Transportadora)
+    }
+
+    enum StatusCarga {
+        PENDENTE
+        EM_TRANSITO
+        ENTREGUE
+        + getLabel() : String
+    }
+
+    abstract class Empresa {
+        - id : int
+        - nome : String
+        - cnpj : String
+        - email : String
+        - telefone : String
+        - endereco : String
+        + getId() : int
+        + getNome() : String
+        + getCnpj() : String
+        + getEmail() : String
+        + getTelefone() : String
+        + getEndereco() : String
+        + setId(int)
+        + setNome(String)
+        + setCnpj(String)
+        + setEmail(String)
+        + setTelefone(String)
+        + setEndereco(String)
+    }
+}
+
+'  REPOSITORY
+package repository {
+
+    class UserRep {
+        - usuarios : List<Usuario>
+        + salvarUser(Usuario)
+        + listarUser() : List<Usuario>
+        + buscarPorId(int) : Usuario
+        + removerUser(int)
+        + atualizarUser(int, Usuario) : boolean
+    }
+
+    class FornecedorRep {
+        - fornecedores : List<Fornecedor>
+        + salvarFornecedor(Fornecedor)
+        + listarFornecedor() : List<Fornecedor>
+        + buscarPorId(int) : Fornecedor
+        + removerFornecedor(int) : boolean
+        + atualizarFornecedor(int, Fornecedor) : boolean
+    }
+
+    class ProdRep {
+        - produtos : List<Produto>
+        + salvarProd(Produto)
+        + listarProd() : List<Produto>
+        + buscarPorId(int) : Produto
+        + removerProd(int) : boolean
+        + atualizarProd(int, Produto) : boolean
+    }
+
+    class TransportadoraRep {
+        - transportadoras : List<Transportadora>
+        + salvarTransp(Transportadora)
+        + listarTransp() : List<Transportadora>
+        + buscarPorId(int) : Transportadora
+        + removerTransp(int) : boolean
+        + atualizarTransp(int, Transportadora) : boolean
+    }
+
+    class CargaRep {
+        - cargas : List<Carga>
+        + salvarCarga(Carga)
+        + listarCargas() : List<Carga>
+        + buscarPorId(int) : Carga
+        + removerCarga(int) : boolean
+        + atualizarCarga(int, Carga) : boolean
+    }
+}
+
+'  SERVICE
+package service {
+
+    class UserService {
+        - contadorId : int
+        + login(String, String) : Usuario
+        + register(String, String, String, boolean)
+        + listarUsuarios() : List<Usuario>
+        + buscarUsuario(int) : Usuario
+        + removerUsuario(int) : boolean
+        + atualizarUsuario(int, String, String, String, boolean) : boolean
+        + validarUsuario(String, String, String) : boolean
+        + emailJaExiste(String) : boolean
+        + listaUsuarioFormatada() : String
+    }
+
+    class FornecedorService extends EmpresaService {
+        - contadorId : int
+        + cadastrarFornecedor(String, String, String, String, String)
+        + listarFornecedores() : List<Fornecedor>
+        + buscarFornecedor(int) : Fornecedor
+        + removerFornecedor(int) : boolean
+        + atualizarFornecedor(int, String, String, String, String, String) : boolean
+        + adicionarProduto(Produto)
+        + removerProduto(Produto)
+        # cnpjJaExiste(String) : boolean
+    }
+
+    class ProdService {
+        - contadorId : int
+        + cadastrarProduto(Fornecedor, String, double, String, int) : Produto
+        + listarProdutos() : List<Produto>
+        + buscarProduto(int) : Produto
+        + buscarProdutosPorIds(int...) : List<Produto>
+        + removerProduto(int) : boolean
+        + atualizarProduto(int, Fornecedor, String, double, String, int) : boolean
+    }
+
+    class TransportadoraService extends EmpresaService {
+        - contadorId : int
+        + cadastrarTransportadora(String, String, String, String, String)
+        + listarTransportadoras() : List<Transportadora>
+        + buscarTransportadora(int) : Transportadora
+        + removerTransportadora(int) : boolean
+        + atualizarTransportadora(int, String, String, String, String, String) : boolean
+        # cnpjJaExiste(String) : boolean
+    }
+
+    class CargaService {
+        - contadorId : int
+        + cadastrarCarga(Transportadora, List<Produto>, String, String) : Carga
+        + listarCargas() : List<Carga>
+        + buscarCarga(int) : Carga
+        + removerCarga(int) : boolean
+        + validaCarga(Transportadora transportadora, String destino) : boolean
+        + atualizarCarga(int, Transportadora, List<Produto>, String, String) : boolean
+        + adicionarProduto(Produto produto, int cId)
+        + removerProduto(Produto produto, int cId)
+    }
+
+    abstract class EmpresaService {
+        # limparCnpj(String) : String
+        # cnpjValido(String) : boolean
+        # {abstract} cnpjJaExiste(String) : boolean
+        # verificaCadastro(String, String, String, String, String) : boolean
+    }
+}
+
+'  CONTROLLER
+package controller {
+
+    class UserController {
+        - sc : Scanner
+        - userService : UserService
+        + menuUsuario()
+        + registrUsuario()
+        + alterarUsuario()
+        + listarUsuarios()
+        + removerUsuario()
+    }
+
+    class FornecedorController {
+        - sc : Scanner
+        - fornecedorService : FornecedorService
+        + menuFornecedores()
+        + cadastrarFornecedor()
+        + alterarFornecedor()
+        + removerFornecedor()
+        + consultarFornecedor()
+        + listarFornecedores()
+    }
+
+    class ProdutoController {
+        - sc : Scanner
+        - prodService : ProdService
+        - fornecedorService : FornecedorService
+        + menuProdutos()
+        + cadastrarProduto()
+        + alterarProduto()
+        + removerProduto()
+        + consultarProduto()
+        + listarProdutos()
+    }
+
+    class TransportadoraController {
+        - sc : Scanner
+        - transService : TransportadoraService
+        - cargaService : CargaService
+        + menuTransportadoras()
+        + cadastrarTransportadora()
+        + alterarTransportadora()
+        + removerTransportadora()
+        + consultarTransportadora()
+        + listarTransportadoras()
+    }
+
+    class CargaController {
+        - sc : Scanner
+        - cargaService : CargaService
+        - transService : TransportadoraService
+        - prodService : ProdService
+        - fornecedorService : FornecedorService
+        - produtoController : ProdutoController
+        + menuCargas()
+        + listarCargas()
+        - cadastrarNovaCargaManual()
+        - alterarCarga()
+        - adicionarProdutoCarga()
+        - removerProdutoCarga()
+        - removerCarga()
+    }
+}
+
+'  APP
+package app {
+
+    class Sistema {
+        - sc : Scanner
+        - logado : Usuario
+        - sistemaAtivo : boolean
+        + start()
+        - inicializarDados()
+        - login()
+        - logout()
+        - menu()
+    }
+}
+
+'  MAIN
+package main {
+    class Main {
+        + {static} main(String[])
+    }
+}
+
+' MODEL
+Fornecedor "1" o-- "0..*" Produto : possui >
+Produto "0..*" --> "1" Fornecedor : pertence a >
+Carga "1" o-- "1..*" Produto : contém >
+Carga "0..*" --> "1" Transportadora : transportada por >
+Carga --> StatusCarga
+Empresa <|-- Fornecedor
+Empresa <|-- Transportadora
+
+' REPOSITORY -> MODEL
+UserRep --> Usuario
+FornecedorRep --> Fornecedor
+ProdRep --> Produto
+TransportadoraRep --> Transportadora
+CargaRep --> Carga
+
+' SERVICE -> REPOSITORY
+UserService --> UserRep
+FornecedorService --> FornecedorRep
+ProdService --> ProdRep
+TransportadoraService --> TransportadoraRep
+CargaService --> CargaRep
+EmpresaService <|-- FornecedorService
+EmpresaService <|-- TransportadoraService
+
+' CONTROLLER -> SERVICE
+UserController --> UserService
+FornecedorController --> FornecedorService
+ProdutoController --> ProdService
+ProdutoController --> FornecedorService
+TransportadoraController --> TransportadoraService
+TransportadoraController --> CargaService
+CargaController --> CargaService
+CargaController --> TransportadoraService
+CargaController --> ProdService
+
+' APP -> CONTROLLER e SERVICE
+Sistema --> UserService
+Sistema --> UserController
+Sistema --> FornecedorController
+Sistema --> ProdutoController
+Sistema --> TransportadoraController
+Sistema --> CargaController
+
+' MAIN -> APP
+Main --> Sistema
+
+@enduml
