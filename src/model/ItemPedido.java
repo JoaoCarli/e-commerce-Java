@@ -5,14 +5,14 @@ import java.io.Serializable;
 public class ItemPedido implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Produto produto; // Referência direta ao objeto original
+    private Produto produto;
     private int quantidade;
-    private double precoUnitarioNoMomento; // Boa prática para registrar o preço pago
+    private final double precoUnitarioNoMomento;
 
     public ItemPedido(Produto produto, int quantidade) {
         this.produto = produto;
         this.quantidade = quantidade;
-        this.precoUnitarioNoMomento = produto.getPreco(); // Guarda o preço atual da compra
+        this.precoUnitarioNoMomento = produto.getPreco();
     }
 
     public Produto getProduto() {
@@ -35,7 +35,6 @@ public class ItemPedido implements Serializable {
         return precoUnitarioNoMomento;
     }
 
-    // Calcula dinamicamente o valor total deste item multiplicando a quantidade
     public double getSubTotal() {
         return this.produto.getPreco() * this.quantidade;
     }

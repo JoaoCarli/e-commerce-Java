@@ -31,7 +31,6 @@ public class UserService {
             return;
         }
 
-        // POLIMORFISMO: Decide qual instância concreta criar com base na flag admin
         Usuario newUser;
         if (admin) {
             newUser = new Administrador(contadorId++, nome, email, senha);
@@ -87,7 +86,6 @@ public class UserService {
         if (email.isBlank()) email = atual.getEmail();
         if (senha.isBlank()) senha = atual.getSenha();
 
-        // POLIMORFISMO: Recria a instância correta na atualização
         Usuario novoUsuario;
         if (admin) {
             novoUsuario = new Administrador(id, nome, email, senha);

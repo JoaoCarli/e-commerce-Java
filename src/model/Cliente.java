@@ -5,8 +5,6 @@ import java.util.List;
 
 public class Cliente extends Usuario {
     private static final long serialVersionUID = 1L;
-    
-    // O carrinho de compras vive temporariamente dentro do objeto do Cliente logado
     private final List<ItemPedido> carrinho;
 
     public Cliente(int id, String nome, String email, String senha) {

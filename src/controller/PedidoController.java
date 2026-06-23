@@ -27,24 +27,32 @@ public class PedidoController {
             int op = Integer.parseInt(sc.nextLine());
             List<Pedido> resultados = new ArrayList<>();
 
-            if (op == 1) {
-                System.out.print("Número do Pedido: ");
-                int num = Integer.parseInt(sc.nextLine());
-                Pedido p = pedidoService.buscarPedidoPorNumero(num);
-                if (p != null && p.getCliente().getId() == cliente.getId()) resultados.add(p);
-            } else if (op == 2) {
-                System.out.print("Data Inicial (dd/MM/yyyy): ");
-                LocalDate inicio = LocalDate.parse(sc.nextLine(), dtf);
-                System.out.print("Data Final (dd/MM/yyyy): ");
-                LocalDate fim = LocalDate.parse(sc.nextLine(), dtf);
-                for (Pedido p : pedidoService.buscarPedidosPorIntervaloDatas(inicio, fim)) {
-                    if (p.getCliente().getId() == cliente.getId()) resultados.add(p);
-                }
-            } else if (op == 3) {
-                resultados = pedidoService.listarPedidosPorCliente(cliente);
+            switch (op) {
+                case 1 -> {
+                    System.out.print("Número do Pedido: ");
+                    int num = Integer.parseInt(sc.nextLine());
+                    Pedido p = pedidoService.buscarPedidoPorNumero(num);
+                    if (p != null && p.getCliente().getId() == cliente.getId()) resultados.add(p);
+                    break;}
+
+                case 2 -> {
+                    System.out.print("Data Inicial (dd/MM/yyyy): ");
+                    LocalDate inicio = LocalDate.parse(sc.nextLine(), dtf);
+
+                    System.out.print("Data Final (dd/MM/yyyy): ");
+                    LocalDate fim = LocalDate.parse(sc.nextLine(), dtf);
+
+                    for (Pedido ped : pedidoService.buscarPedidosPorIntervaloDatas(inicio, fim)) {
+                        if (ped.getCliente().getId() == cliente.getId()) resultados.add(ped);
+                    }
+                    break;}
+
+                case 3 -> {
+                    resultados = pedidoService.listarPedidosPorCliente(cliente);
+                    break;}
             }
             exibirTelaMestreDetalhe(resultados);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.out.println("Erro na consulta ou formato de data inválido.");
         }
     }
@@ -61,22 +69,29 @@ public class PedidoController {
             }
 
             List<Pedido> resultados = new ArrayList<>();
-            if (op == 1) {
-                System.out.print("Número do Pedido: ");
-                int num = Integer.parseInt(sc.nextLine());
-                Pedido p = pedidoService.buscarPedidoPorNumero(num);
-                if (p != null) resultados.add(p);
-            } else if (op == 2) {
-                System.out.print("Data Inicial (dd/MM/yyyy): ");
-                LocalDate inicio = LocalDate.parse(sc.nextLine(), dtf);
-                System.out.print("Data Final (dd/MM/yyyy): ");
-                LocalDate fim = LocalDate.parse(sc.nextLine(), dtf);
-                resultados = pedidoService.buscarPedidosPorIntervaloDatas(inicio, fim);
-            } else if (op == 3) {
-                resultados = pedidoService.listarTodosPedidos();
+            switch(op) {
+                case 1 -> {
+                    System.out.print("Número do Pedido: ");
+                    int num = Integer.parseInt(sc.nextLine());
+                    Pedido p = pedidoService.buscarPedidoPorNumero(num);
+                    if (p != null) resultados.add(p);
+                    break;}
+
+                case 2 -> {
+                    System.out.print("Data Inicial (dd/MM/yyyy): ");
+                    LocalDate inicio = LocalDate.parse(sc.nextLine(), dtf);
+                    System.out.print("Data Final (dd/MM/yyyy): ");
+                    LocalDate fim = LocalDate.parse(sc.nextLine(), dtf);
+                    resultados = pedidoService.buscarPedidosPorIntervaloDatas(inicio, fim);
+                    break;}
+
+                case 3 -> {
+                    resultados = pedidoService.listarTodosPedidos();
+                    break;}
+
             }
             exibirTelaMestreDetalhe(resultados);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.out.println("Erro na entrada de dados.");
         }
     }

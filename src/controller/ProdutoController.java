@@ -43,9 +43,6 @@ public class ProdutoController {
         }
     }
 
-    // ==========================================
-    // PARTE 2: MENU DE COMPRA / CARRINHO (ATOR CLIENTE)
-    // ==========================================
     public void menuConsultaCarrinho(Cliente cliente) {
         System.out.println("\n=== CONSULTA DE PRODUTOS E REALIZAÇÃO DE PEDIDOS ===");
         System.out.print("Digite o código ou parte do nome/descrição para pesquisar: ");
@@ -53,7 +50,6 @@ public class ProdutoController {
 
         List<Produto> resultados = new ArrayList<>();
         
-        // Pesquisa na lista global de produtos
         for (Produto p : prodService.listarProdutos()) {
             String idStr = String.valueOf(p.getId());
             if (idStr.equals(busca) || p.getNome().toLowerCase().contains(busca)) {
@@ -66,7 +62,6 @@ public class ProdutoController {
             return;
         }
 
-        // Exibe os produtos encontrados filtrando o status de estoque
         System.out.println("\n--- RESULTADOS ENCONTRADOS ---");
         for (int i = 0; i < resultados.size(); i++) {
             Produto p = resultados.get(i);
@@ -78,13 +73,11 @@ public class ProdutoController {
         try {
             System.out.print("\nDigite o número da posição (ou ID do produto) para adicionar ao carrinho: ");
             int opcaoSelecao = Integer.parseInt(sc.nextLine());
-            
-            Produto produtoSelecionado = null;
-            // Se o usuário digitou a posição da lista gerada (1, 2, 3...)
+            Produto produtoSelecionado;
+
             if (opcaoSelecao >= 1 && opcaoSelecao <= resultados.size()) {
                 produtoSelecionado = resultados.get(opcaoSelecao - 1);
             } else {
-                // Senão, tenta buscar diretamente pelo ID global
                 produtoSelecionado = prodService.buscarProduto(opcaoSelecao);
             }
 
@@ -93,7 +86,6 @@ public class ProdutoController {
                 return;
             }
 
-            // Regra de Vendas: Itens com estoque zero não podem ser vendidos
             if (produtoSelecionado.getEstoque() == 0) {
                 System.out.println("Erro: Não é possível vender um item indisponível.");
                 return;
@@ -107,7 +99,6 @@ public class ProdutoController {
                 return;
             }
 
-            // LANÇAMENTO DE EXCEÇÃO PROGRAMADA: Se quiser comprar mais do que há em estoque
             if (qtd > produtoSelecionado.getEstoque()) {
                 throw new EstoqueInsuficienteException("Quantidade insuficiente de produtos para efetuar um pedido! Máximo disponível: " + produtoSelecionado.getEstoque());
             }
@@ -117,7 +108,6 @@ public class ProdutoController {
             System.out.print("Confirmar adição ao carrinho? (s/n): ");
             
             if (sc.nextLine().equalsIgnoreCase("s")) {
-                // Operação por referência: adiciona o item mantendo o ponteiro do produto original
                 ItemPedido novoItem = new ItemPedido(produtoSelecionado, qtd);
                 cliente.getCarrinho().add(novoItem);
                 System.out.println("Produto adicionado ao seu carrinho com sucesso!");
@@ -128,7 +118,6 @@ public class ProdutoController {
         } catch (NumberFormatException e) {
             System.out.println("Erro: Digite apenas números válidos.");
         } catch (EstoqueInsuficienteException e) {
-            // Tratamento amigável da exceção disparada
             System.out.println("\n[AVISO DE ESTOQUE] " + e.getMessage());
         }
     }

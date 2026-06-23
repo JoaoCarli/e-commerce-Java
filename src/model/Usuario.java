@@ -29,6 +29,5 @@ public abstract class Usuario implements Serializable {
     public String getSenha() { return senha; }
     public void setSenha(String senha) { this.senha = senha; }
 
-    // Método abstrato para identificar o tipo de menu/permissão sem precisar de booleano
     public abstract boolean isAdmin();
 }
