@@ -69,4 +69,5 @@ public class CarrinhoController {
             System.out.println("Entrada inválida. Operação cancelada.");
         }
     }
+
 }

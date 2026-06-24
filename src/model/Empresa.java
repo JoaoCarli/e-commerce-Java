@@ -66,5 +66,4 @@ public class Empresa implements java.io.Serializable{
         this.endereco = endereco;
     }
 
-
 }

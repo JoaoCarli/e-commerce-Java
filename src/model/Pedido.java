@@ -72,4 +72,5 @@ public class Pedido implements Serializable {
         }
         return totalItens + valorFrete;
     }
+
 }

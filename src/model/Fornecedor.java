@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Fornecedor extends Empresa {
-    
     private List<Produto> produtos;
 
     public Fornecedor(List<Produto> produtos, String cnpj, String email, String endereco, int id, String nome, String telefone) {

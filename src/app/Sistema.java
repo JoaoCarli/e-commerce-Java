@@ -15,14 +15,6 @@ public class Sistema {
     private final CargaService cargaService = new CargaService();
     private final PedidoService pedidoService = new PedidoService();
 
-    private final UserController userController = new UserController(sc, userService);
-    private final FornecedorController fornecedorController = new FornecedorController(sc, fornecedorService);
-    private final ProdutoController produtoController = new ProdutoController(sc, prodService);
-    private final TransportadoraController transController = new TransportadoraController(sc, transService, cargaService);
-    private final CargaController cargaController = new CargaController(sc, cargaService);
-    private final CarrinhoController carrinhoController = new CarrinhoController(sc, pedidoService, transService);
-    private final PedidoController pedidoController = new PedidoController(sc, pedidoService);
-
     private Usuario logado;
     private boolean sistemaAtivo = true;
 
@@ -85,6 +77,14 @@ public class Sistema {
     }
 
     private void menu() {
+        UserController userController = new UserController(sc, userService);
+        FornecedorController fornecedorController = new FornecedorController(sc, fornecedorService);
+        ProdutoController produtoController = new ProdutoController(sc, prodService);
+        TransportadoraController transController = new TransportadoraController(sc, transService, cargaService);
+        CargaController cargaController = new CargaController(sc, cargaService);
+        CarrinhoController carrinhoController = new CarrinhoController(sc, pedidoService, transService);
+        PedidoController pedidoController = new PedidoController(sc, pedidoService);
+
         System.out.println("\n=== MENU PRINCIPAL (Acesso: " + (logado.isAdmin() ? "ADMIN" : "USER") + ") ===");
         if (logado.isAdmin()) {
             System.out.println("1 - Gerenciar Fornecedores\n2 - Gerenciar Produtos\n3 - Gerenciar Transportadoras\n4 - Gerenciar Cargas\n5 - Gerenciar Usuários\n6 - Gerenciar Pedidos da Loja");
@@ -121,4 +121,5 @@ public class Sistema {
             System.out.println("Entrada inválida.");
         }
     }
+
 }

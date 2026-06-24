@@ -1,0 +1,302 @@
+@startuml modelo_classe
+' skinparam classAttributeIconSize 0
+' skinparam packageStyle rectangle
+' skinparam linetype ortho
+
+' --teste--
+skinparam dpi 150
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+left to right direction
+' ----------
+
+'  MODEL
+package model {
+
+    abstract class Usuario {
+        - id : int
+        - nome : String
+        - email : String
+        - senha : String
+        + {abstract} isAdmin() : boolean
+    }
+
+    class Administrador extends Usuario {
+        + isAdmin() : boolean
+    }
+
+    class Cliente extends Usuario {
+    }
+
+    class Fornecedor extends Empresa {
+    }
+
+    class Produto {
+        - id : int
+        - nome : String
+        - preco : double
+        - estoque : int
+    }
+
+    class Transportadora extends Empresa {
+    }
+
+    class Carga {
+        - id : int
+        - destino : String
+        - status : StatusCarga
+    }
+
+    enum StatusCarga {
+        PENDENTE
+        EM_TRANSITO
+        ENTREGUE
+    }
+
+    abstract class Empresa {
+        - id : int
+        - nome : String
+        - cnpj : String
+        - email : String
+        - telefone : String
+        - endereco : String
+    }
+
+    class ItemPedido {
+        - quantidade : int
+        - precoUnitarioNoMomento : double
+    }
+
+    class Pedido {
+        - numeroPedido : int
+        - dataRealizacao : LocalDate
+        - dataEnvio : LocalDate
+        - dataCancelamento : LocalDate
+        - status : StatusPedido
+        - valorFrete : double
+    }
+
+    enum StatusPedido {
+        PENDENTE
+        ENVIADO
+        CANCELADO
+    }
+}
+
+'  REPOSITORY
+package repository {
+
+    class UserRep {
+    }
+
+    class FornecedorRep {
+    }
+
+    class ProdRep {
+    }
+
+    class TransportadoraRep {
+    }
+
+    class CargaRep {
+    }
+
+    class PedidoRep {
+    }
+}
+
+'  SERVICE
+package service {
+
+    class UserService {
+        + login(email : String, senha : String) : Usuario
+        + register(nome : String, email : String, senha : String, admin : boolean) : void
+        + validarUsuario(nome : String, email : String, senha : String) : boolean
+        + emailJaExiste(email : String) : boolean
+    }
+
+    class FornecedorService extends EmpresaService {
+        + cadastrarFornecedor(String, String, String, String, String): void
+        + adicionarProduto(Produto): void
+        + removerProduto(Produto): void
+        # {abstract} cnpjJaExiste(String) : boolean
+    }
+
+    class ProdService {
+        + cadastrarProduto(Fornecedor, String, double, String, int) : Produto
+        + buscarProdutosPorIds(int...) : List<Produto>
+    }
+
+    class TransportadoraService extends EmpresaService {
+        + cadastrarTransportadora(String, String, String, String, String): void
+        # {abstract} cnpjJaExiste(String) : boolean
+    }
+
+    class CargaService {
+        + cadastrarCarga(Transportadora, List<Produto>, String, String) : Carga
+        + validaCarga(Transportadora transportadora, String destino) : boolean
+        + adicionarProduto(Produto produto, int cId): void
+        + removerProduto(Produto produto, int cId): void
+    }
+
+    abstract class EmpresaService {
+        # limparCnpj(String) : String
+        # cnpjValido(String) : boolean
+        # {abstract} cnpjJaExiste(String) : boolean
+        # verificaCadastro(String, String, String, String, String) : boolean
+    }
+
+    class PedidoService {
+        + finalizarPedido(Cliente cliente, Transportadora transportadora, double valorFrete): Pedido
+        + listarPedidosPorCliente(Cliente cliente): List<Pedido>
+        + buscarPedidosPorIntervaloDatas(LocalDate inicio, LocalDate fim): List<Pedido>
+        + alterarStatusPedido(int numero, Pedido.StatusPedido novoStatus): boolean
+    }
+}
+
+'  CONTROLLER
+package controller {
+
+    class UserController {
+        + menuUsuario(): void
+    }
+
+    class FornecedorController {
+        + menuFornecedores(): void
+    }
+
+    class ProdutoController {
+        + menuProdutos(): void
+        + menuConsultaCarrinho(Cliente cliente): void
+    }
+
+    class TransportadoraController {
+        + menuTransportadoras(): void
+    }
+
+    class CargaController {
+        + menuCargas(): void
+        - adicionarProdutoCarga(): void
+        - removerProdutoCarga(): void
+    }
+
+    class PedidoController{
+        + menuClientePedidos(Cliente cliente): void
+        + menuAdminPedidos(): void
+        - alterarStatusFluxo(): void
+        - exibirTelaMestreDetalhe(List<Pedido> lista): void
+    }
+
+    class CarrinhoController{
+        + menuVisualizarCarrinho(Cliente cliente): void
+        - finalizarPedidoFluxo(Cliente cliente): void
+    }
+}
+
+'  EXCEPTION
+package exception {
+
+    class EstoqueInsuficienteException extends Exception {
+    }
+}
+
+'  SISTEMA
+package app {
+
+    class Sistema {
+        + start()
+        - inicializarDados()
+        - login()
+        - logout()
+        - menu()
+    }
+}
+
+'  MAIN
+package main {
+    class Main {
+        + {static} main(String[])
+    }
+}
+
+' HERANÇAS
+Usuario <|-- Administrador
+Usuario <|-- Cliente
+
+Empresa <|-- Fornecedor
+Empresa <|-- Transportadora
+
+EmpresaService <|-- FornecedorService
+EmpresaService <|-- TransportadoraService
+
+' MODEL
+Fornecedor "1" --> "0..*" Produto
+Produto "0..*" --> "1" Fornecedor
+
+Carga "1" --> "1" Transportadora
+Carga "1" --> "0..*" Produto
+Carga --> StatusCarga
+
+Pedido "0..*" --> "1" Cliente
+Pedido "1" --> "0..*" ItemPedido
+Pedido "1" --> "1" Transportadora
+Pedido --> StatusPedido
+
+ItemPedido "0..*" --> "1" Produto
+
+
+' REPOSITORY -> MODEL
+UserRep "1" --> "0..*" Usuario
+FornecedorRep "1" --> "0..*" Fornecedor
+ProdRep "1" --> "0..*" Produto
+TransportadoraRep "1" --> "0..*" Transportadora
+CargaRep "1" --> "0..*" Carga
+PedidoRep "1" --> "0..*" Pedido
+
+' SERVICE -> REPOSITORY
+UserService --> UserRep
+FornecedorService --> FornecedorRep
+ProdService --> ProdRep
+ProdService --> FornecedorService
+TransportadoraService --> TransportadoraRep
+CargaService --> CargaRep
+PedidoService --> PedidoRep
+
+' CONTROLLER -> SERVICE
+UserController --> UserService
+
+FornecedorController --> FornecedorService
+
+ProdutoController --> ProdService
+ProdutoController --> FornecedorService
+
+CarrinhoController --> PedidoService
+CarrinhoController --> TransportadoraService
+
+TransportadoraController --> TransportadoraService
+TransportadoraController --> CargaService
+
+PedidoController --> PedidoService
+
+CargaController --> CargaService
+CargaController --> TransportadoraService
+CargaController --> ProdService
+CargaController --> ProdutoController
+
+' EXCEPTION
+ProdutoController ..> EstoqueInsuficienteException : throws
+
+' SISTEMA -> CONTROLLER e SERVICE
+Sistema --> UserController
+Sistema --> FornecedorController
+Sistema --> ProdutoController
+Sistema --> TransportadoraController
+Sistema --> CargaController
+Sistema --> CarrinhoController
+Sistema --> PedidoController
+
+' MAIN -> SISTEMA
+Main --> Sistema
+
+@enduml

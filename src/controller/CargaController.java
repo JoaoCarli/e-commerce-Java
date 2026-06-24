@@ -224,4 +224,5 @@ public class CargaController {
         cargaService.removerProduto(p, idCarga);
         System.out.println("Produto removido da carga!");
     }
+
 }

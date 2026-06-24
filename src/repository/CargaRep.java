@@ -80,4 +80,5 @@ public class CargaRep {
             System.out.println("Erro ao salvar o arquivo de cargas: " + e.getMessage());
         }
     }
+
 }
